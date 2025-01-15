@@ -55,7 +55,7 @@ public class AuthController extends BaseController<AuthResponseDto> {
         log.info("requestURI : {}", request.getRequestURL());
         AuthResponseDto dto = googleOAuth2Service.handleOAuthCallback(code, response);
 
-        return ResponseEntity.status(HttpStatus.SEE_OTHER).location(URI.create("http://localhost:8081")).build();
+        return ResponseEntity.status(HttpStatus.SEE_OTHER).location(URI.create("http://13.209.85.84/")).build();
 //                .body(ApiResponseVer3.success(dto, HttpStatus.OK.value(), "Successful SNS Login"));
     }
 
