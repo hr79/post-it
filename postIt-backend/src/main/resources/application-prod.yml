@@ -1,0 +1,34 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://prod-mysql:3306/crud_db?autoReconnect=true&useSSL=false&connectTimeout=30000
+    username: ${MYSQL_USERNAME}
+    password: ${MYSQL_PASSWORD}
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            redirect-uri: http://localhost:8080/auth/oauth2/callback
+            scope:
+              - email
+              - profile
+
+  data:
+    redis:
+      host: ${REDIS_HOST:crud-redis}
+      port: ${REDIS_PORT:6379}
+      password:
+
+      lettuce:
+        pool:
+          max-idle: 8
+          min-idle: 0
+          max-active: 8
+
+
+jwt:
+  secret-key: ${JWT_SECRET_KEY}
