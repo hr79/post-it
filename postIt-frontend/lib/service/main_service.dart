@@ -37,12 +37,22 @@ class MainService extends GetxController {
     return null;
   }
 
-  void login(String id, String pw) async {
-    var resp = await _dio.post("$basedUrl/login",
-        options: Options(contentType: Headers.jsonContentType),
-        data: {"username": id, "password": pw});
+  Future<bool> login(String id, String pw) async {
+    try {
+      var resp = await _dio.post("$basedUrl/login",
+          options: Options(contentType: Headers.jsonContentType),
+          data: {"username": id, "password": pw});
 
-    await _setTokenInStorage(resp);
+      await _setTokenInStorage(resp);
+
+      return true;
+    } on DioException catch (e) {
+      print(e.response);
+      print(e.message);
+      print(e.error);
+
+      return false;
+    }
   }
 
   Future<void> _setTokenInStorage(resp) async {

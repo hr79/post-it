@@ -1,3 +1,4 @@
+import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -8,7 +9,7 @@ import 'package:postit_frontend/service/main_service.dart';
 class MainController extends GetxController {
   final MainService _mainService = MainService();
   TextEditingController idController = TextEditingController(text: "username1");
-  TextEditingController pwController = TextEditingController(text: "password");
+  TextEditingController pwController = TextEditingController(text: "1234");
   RxList<Post> postList = <Post>[].obs;
   RxInt pageNum = 0.obs;
   RxBool isLoggedIn = false.obs; // 로그인 한 상태인지
@@ -16,9 +17,7 @@ class MainController extends GetxController {
 
   getPostlist() async {
     List<Post>? pagingPost = await _mainService.getPagingPost(pageNum.value);
-    // print("pagingPost: $pagingPost");
     postList.addAll(pagingPost!);
-    // print(postList[0].title);
     pageNum.value++;
   }
 
@@ -32,17 +31,11 @@ class MainController extends GetxController {
     print(pwController.text);
   }
 
-  login() {
-    //todo
-    // 비밀번호가 맞지 않아 로그인 실패시에도 isLoggedIn이 true가 되면서 로그인 상테가 됨.
-    try {
-      _mainService.login(idController.text, pwController.text);
-      isLoggedIn.value = true;
-    } on DioException catch (e) {
-      print(e.message);
-      print(e.response);
-      print(e.stackTrace);
-    }
+  login() async {
+    // todo
+    // 로그인 실패시 로그인 다이얼로그가 꺼지는게 아니라 입력한 값은 그대로 남아있게+ 다시 로그인하라는 알림
+    isLoggedIn.value =
+        await _mainService.login(idController.text, pwController.text);
   }
 
   logOut() {
@@ -55,12 +48,45 @@ class MainController extends GetxController {
     super.onInit();
     print(":::: MainController.onInit");
     await checkLoginStatus();
-
     getPostlist();
   }
 
   Future<void> checkLoginStatus() async {
     String? authToken = await _storage.read(key: "token");
-    authToken != null ? isLoggedIn.value = true : isLoggedIn.value = false;
+    print("authtoken = $authToken");
+
+    if (authToken == null) {
+      isLoggedIn.value = false;
+
+      return;
+    }
+    if (authToken != null && !_isTokenAlive(authToken)) {
+      isLoggedIn.value = false;
+      await _storage.delete(key: "token");
+      print("token deleted!");
+
+      return;
+    } else {
+      isLoggedIn.value = true;
+
+      return;
+    }
+  }
+
+  bool _isTokenAlive(String? authToken) {
+    print(":::: isTokenAlive");
+    var decode = JWT.decode(authToken!);
+    var expiry = decode.payload["exp"] as int;
+    var expiryDate =
+        DateTime.fromMillisecondsSinceEpoch(expiry * 1000, isUtc: true);
+    print("expiryDate: $expiryDate");
+
+    if (DateTime.now().isAfter(expiryDate)) {
+      print("Token is expired");
+      return false;
+    } else {
+      print("Token is alive");
+      return true;
+    }
   }
 }
