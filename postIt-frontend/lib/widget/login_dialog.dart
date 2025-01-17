@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:postit_frontend/api/api_client.dart';
+import 'package:postit_frontend/app_route.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class LoginDialog extends StatelessWidget {
@@ -103,7 +105,7 @@ class LoginDialog extends StatelessWidget {
                     children: [
                       ElevatedButton(
                         onPressed: () {
-                          launchUrlString("http://localhost:8080/auth/oauth2-login?login_type=google");
+                          launchUrlString("${AppRoute.basedUrl}/auth/oauth2-login?login_type=google");
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.white,
