@@ -1,0 +1,30 @@
+spring:
+  profiles:
+    active: ${PROFILE:local}
+  jpa:
+    hibernate:
+      ddl-auto: update
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl #camelcase를 사용하지않고 변수이름을 그대로 사용한다.
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        type: trace
+        dialect: org.hibernate.dialect.MySQLDialect
+        jdbc:
+          batch_size: 1000 # jpa에서 한번에 처리하는 데이터 사이즈. batch 설정.
+    database-platform: org.hibernate.dialect.MySQL57InnoDBDialect
+    database: mysql
+
+  datasource:
+    hikari:
+      data-source-properties:
+        p6spy:
+          logging: true
+          config:
+  data:
+    redis:
+      lettuce:
+        pool:
+          max-active:
