@@ -17,8 +17,8 @@ jobs:
     env:
       # 환경변수를 안전하게 관리하기 위해 GitHub Secrets 사용
       DOCKER_REGISTRY_URL: ${{ secrets.DOCKER_REGISTRY_URL }}
-      # DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-      DOCKER_USERNAME: hyerim12
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      # DOCKER_USERNAME: hyerim12
       DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
       EC2_HOST: ${{ secrets.EC2_HOST }}
       EC2_USER: ${{ secrets.EC2_USER }}
@@ -31,12 +31,12 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
 
-    - name: Check secrets are not empty
-      run: |
-        if [[ -z "${DOCKER_USERNAME}" || -z "${DOCKER_PASSWORD}" ]]; then
-          echo "DOCKER_USERNAME or DOCKER_PASSWORD is empty!"
-          exit 1
-        fi
+    # - name: Check secrets are not empty
+    #   run: |
+    #     if [[ -z "${DOCKER_USERNAME}" || -z "${DOCKER_PASSWORD}" ]]; then
+    #       echo "DOCKER_USERNAME or DOCKER_PASSWORD is empty!"
+    #       exit 1
+    #     fi
 
     - name: Log in to Docker Hub
       run: echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
