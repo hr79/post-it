@@ -50,8 +50,8 @@ jobs:
       env:
         DOCKER_REGISTRY_URL: ${{ secrets.DOCKER_REGISTRY_URL }}
       run: |
-        docker buildx build --platform linux/amd64,linux/arm64 -t $DOCKER_REGISTRY_URL/springboot-web:latest ./postit-backend
-        docker push $DOCKER_REGISTRY_URL/springboot-web:latest
+        docker buildx build --platform linux/amd64,linux/arm64 -t "$DOCKER_REGISTRY_URL"/springboot-web:latest ./postit-backend
+        docker push "$DOCKER_REGISTRY_URL"/springboot-web:latest
 
     - name: Build and push frontend Docker image
       env:
