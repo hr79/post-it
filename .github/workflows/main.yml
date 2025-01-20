@@ -43,7 +43,7 @@ jobs:
         
     - name: Build and push backend Docker image
       run: |
-        docker buildx build --no-cache --platform linux/amd64,linux/arm64 -t $DOCKER_USERNAME/springboot-web:latest ./postIt-backend --push
+        docker buildx build --no-cache --platform linux/amd64,linux/arm64 -t $DOCKER_REGISTRY_URL/springboot-web:latest ./postIt-backend --push
 
     - name: Build and push frontend Docker image
       run: |
