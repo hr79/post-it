@@ -46,22 +46,22 @@ jobs:
       run: |
         docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
 
-    # - name: Build and push backend Docker image
-    #   env:
-    #     DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-    #   run: |
-    #     docker buildx build --platform linux/amd64,linux/arm64 \
-    #     -t "$DOCKER_USERNAME/springboot-web:latest" \
-    #     --push ./postit-backend
+    - name: Build and push backend Docker image
+      env:
+        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      run: |
+        docker buildx build --platform linux/amd64,linux/arm64 \
+        -t ${{ secrets.DOCKER_USERNAME }}/springboot-web:latest \
+        --push ./postit-backend
 
-    - name: Build and push Docker image
-      id: build-and-push
-      uses: docker/build-push-action@v4
-      with:
-        context: ./postit-backend
-        platforms: linux/amd64,linux/arm64
-        push: true
-        tags: ${{ secrets.DOCKER_USERNAME }}/springboot-web:latest # Correct tag format
+    # - name: Build and push Docker image
+    #   id: build-and-push
+    #   uses: docker/build-push-action@v4
+    #   with:
+    #     context: ./postit-backend
+    #     platforms: linux/amd64,linux/arm64
+    #     push: true
+    #     tags: ${{ secrets.DOCKER_USERNAME }}/springboot-web:latest # Correct tag format
 
     - name: Build and push frontend Docker image
       env:
