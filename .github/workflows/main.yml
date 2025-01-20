@@ -33,12 +33,14 @@ jobs:
     - name: Build and push backend Docker image
       env:
         DOCKER_REGISTRY_URL: ${{ secrets.DOCKER_REGISTRY_URL }}
+        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       run: |
-        docker buildx build --platform linux/amd64,linux/arm64 -t $DOCKER_REGISTRY_URL/springboot-web:latest ./postIt-backend --push
+        docker buildx build --platform linux/amd64,linux/arm64 -t $DOCKER_USERNAME/springboot-web:latest ./postIt-backend --push
 
     - name: Build and push frontend Docker image
       env:
         DOCKER_REGISTRY_URL: ${{ secrets.DOCKER_REGISTRY_URL }}
+        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       run: |
         docker buildx build --platform linux/amd64,linux/arm64 -t $DOCKER_REGISTRY_URL/flutter-web:latest ./postIt-frontend --push
 
