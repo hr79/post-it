@@ -43,11 +43,15 @@ jobs:
         
     - name: Build and push backend Docker image
       run: |
-        docker buildx build --no-cache --platform linux/amd64,linux/arm64 -t $DOCKER_REGISTRY_URL/springboot-web:latest ./postIt-backend --push
+        docker build -t $DOCKER_REGISTRY_URL/springboot-web:latest ./postIt-backend --push
+    #   run: |
+    #     docker buildx build --no-cache --platform linux/amd64,linux/arm64 -t $DOCKER_REGISTRY_URL/springboot-web:latest ./postIt-backend --push
 
     - name: Build and push frontend Docker image
       run: |
-        docker buildx build --no-cache --platform linux/amd64,linux/arm64 -t $DOCKER_REGISTRY_URL/flutter-web:latest ./postIt-frontend --push
+        docker build -t $DOCKER_REGISTRY_URL/flutter-web:latest ./postIt-frontend --push
+    #   run: |
+    #     docker buildx build --no-cache --platform linux/amd64,linux/arm64 -t $DOCKER_REGISTRY_URL/flutter-web:latest ./postIt-frontend --push
 
     - name: Deploy to EC2
       uses: appleboy/ssh-action@v0.1.8
