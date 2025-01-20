@@ -47,8 +47,8 @@ jobs:
         docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
 
     - name: Build and push backend Docker image
-      # env:
-      #   DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      env:
+        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       # run: |
       #   docker buildx build --platform linux/amd64,linux/arm64 \
       #   -t ${{ secrets.DOCKER_USERNAME }}/springboot-web:latest \
