@@ -12,15 +12,15 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
-    env:
+    # env:
       # 환경변수를 안전하게 관리하기 위해 GitHub Secrets 사용
-      DOCKER_REGISTRY_URL: ${{ secrets.DOCKER_REGISTRY_URL }}
-      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      # DOCKER_REGISTRY_URL: ${{ secrets.DOCKER_REGISTRY_URL }}
+      # DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       # DOCKER_USERNAME: hyerim12
-      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-      EC2_HOST: ${{ secrets.EC2_HOST }}
-      EC2_USER: ${{ secrets.EC2_USER }}
-      EC2_PRIVATE_KEY: ${{ secrets.EC2_PRIVATE_KEY }}
+      # DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      # EC2_HOST: ${{ secrets.EC2_HOST }}
+      # EC2_USER: ${{ secrets.EC2_USER }}
+      # EC2_PRIVATE_KEY: ${{ secrets.EC2_PRIVATE_KEY }}
 
     steps:
     - name: Checkout code
@@ -49,10 +49,15 @@ jobs:
     - name: Build and push backend Docker image
       # env:
       #   DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      # run: |
+      #   docker buildx build --platform linux/amd64,linux/arm64 \
+      #   -t ${{ secrets.DOCKER_USERNAME }}/springboot-web:latest \
+      #   --push ./postit-backend;
+
       run: |
-        docker buildx build --platform linux/amd64,linux/arm64 \
-        -t "${{ secrets.DOCKER_USERNAME }}/springboot-web:latest" \
-        --push ./postit-backend;
+        docker buildx build --platform linux/amd64,linux/arm64 -t ${{ secrets.DOCKER_USERNAME }}/springboot-web:latest ./postIt-backend
+        docker push ${{ secrets.DOCKER_USERNAME }}/springboot-web:latest
+
 
     - name: Build and push frontend Docker image
       env:
