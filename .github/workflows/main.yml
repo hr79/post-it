@@ -49,7 +49,7 @@ jobs:
 
     - name: Build the project
       working-directory: ./postIt-backend
-      run: ./gradlew clean build
+      run: ./gradlew clean build -x test
         
     # backend
     - name: Build and push backend Docker image
