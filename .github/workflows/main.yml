@@ -46,7 +46,7 @@ jobs:
         IMAGE_NAME: springboot-web
         IMAGE_TAG: latest
       run: |
-        docker build -t $DOCKER_REGISTRY_URL/$IMAGE_NAME:$IMAGE_TAG ./postIt-backend --push
+        docker build -t $DOCKER_USERNAME/$IMAGE_NAME:$IMAGE_TAG ./postIt-backend --push
     #   run: |
     #     docker buildx build --no-cache --platform linux/amd64,linux/arm64 -t $DOCKER_REGISTRY_URL/springboot-web:latest ./postIt-backend --push
 
@@ -55,7 +55,7 @@ jobs:
         IMAGE_NAME: flutter-web
         IMAGE_TAG: latest
       run: |
-        docker build -t $DOCKER_REGISTRY_URL/$IMAGE_NAME:$IMAGE_TAG ./postIt-frontend --push
+        docker build -t $DOCKER_USERNAME/$IMAGE_NAME:$IMAGE_TAG ./postIt-frontend --push
     #   run: |
     #     docker buildx build --no-cache --platform linux/amd64,linux/arm64 -t $DOCKER_REGISTRY_URL/flutter-web:latest ./postIt-frontend --push
 
