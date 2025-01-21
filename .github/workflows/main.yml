@@ -41,6 +41,15 @@ jobs:
         echo "DOCKER_USERNAME: $DOCKER_USERNAME"
         echo "DOCKER_REGISTRY_URL: $DOCKER_REGISTRY_URL"
 
+    - name: Set up JDK
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        java-version: '21' # 사용 중인 Java 버전에 맞게 변경
+
+    - name: Build the project
+      run: ./gradlew clean build
+        
     # backend
     - name: Build and push backend Docker image
       env:
@@ -48,7 +57,7 @@ jobs:
         IMAGE_TAG: latest
         DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       run: |
-        docker build -t hyerim12/$IMAGE_NAME:$IMAGE_TAG ./postIt-backend --push
+        docker build -t ${{ secrets.DOCKER_USERNAME }}/$IMAGE_NAME:$IMAGE_TAG ./postIt-backend --push
     #   run: |
     #     docker buildx build --no-cache --platform linux/amd64,linux/arm64 -t $DOCKER_REGISTRY_URL/springboot-web:latest ./postIt-backend --push
 
