@@ -1,9 +1,11 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:postit_frontend/app_route.dart';
 
 class ApiClient {
   final Dio _dio = Dio();
   final _storage = const FlutterSecureStorage();
+  final basedUrl = AppRoute.basedUrl;
 
   ApiClient() {
     _dio.interceptors.add(
@@ -23,7 +25,7 @@ class ApiClient {
 
           if (e.response?.statusCode == 401 || e.response?.statusCode == 403) {
             print(e.response?.statusCode);
-            var reissueResp = await _dio.post("http://localhost:8080/api/auth/reissue");
+            var reissueResp = await _dio.post("$basedUrl/auth/reissue");
             print(reissueResp.data);
 
             String newAccessToken = reissueResp.data;
