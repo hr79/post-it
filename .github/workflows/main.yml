@@ -48,6 +48,7 @@ jobs:
         java-version: '21' # 사용 중인 Java 버전에 맞게 변경
 
     - name: Build the project
+      working-directory: ./postIt-backend
       run: ./gradlew clean build
         
     # backend
