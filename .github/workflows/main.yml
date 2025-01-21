@@ -46,6 +46,7 @@ jobs:
       env:
         IMAGE_NAME: springboot-web
         IMAGE_TAG: latest
+        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       run: |
         docker build -t $DOCKER_USERNAME/$IMAGE_NAME:$IMAGE_TAG ./postIt-backend --push
     #   run: |
