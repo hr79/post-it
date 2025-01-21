@@ -40,7 +40,8 @@ jobs:
       run: |
         echo "DOCKER_USERNAME: $DOCKER_USERNAME"
         echo "DOCKER_REGISTRY_URL: $DOCKER_REGISTRY_URL"
-        
+
+    # backend
     - name: Build and push backend Docker image
       env:
         IMAGE_NAME: springboot-web
