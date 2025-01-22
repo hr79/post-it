@@ -16,9 +16,9 @@ jobs:
       DOCKER_USERNAME: ${{ secrets.PROD_DOCKER_USERNAME }}
       DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
       DOCKER_ACCESS_TOKEN: ${{ secrets.PROD_DOCKER_ACCESS_TOKEN }}
-      EC2_HOST: ${{ secrets.EC2_HOST }}
-      EC2_USER: ${{ secrets.EC2_USER }}
-      EC2_PRIVATE_KEY: ${{ secrets.EC2_PRIVATE_KEY }}
+      EC2_HOST: ${{ secrets.PROD_EC2_HOST }}
+      EC2_USER: ${{ secrets.PROD_EC2_USER }}
+      EC2_PRIVATE_KEY: ${{ secrets.PROD_EC2_PRIVATE_KEY }}
       
     steps:
     - name: Checkout code
@@ -69,6 +69,10 @@ jobs:
     #   run: |
     #     docker buildx build --no-cache --platform linux/amd64,linux/arm64 -t $DOCKER_REGISTRY_URL/springboot-web:latest ./postIt-backend --push
 
+    - name: Build Flutter Web
+      working-directory: ./postIt-frontend
+      run: flutter build web
+      
     - name: Build and push frontend Docker image
       env:
         IMAGE_NAME: flutter-web
@@ -81,9 +85,9 @@ jobs:
     - name: Deploy to EC2
       uses: appleboy/ssh-action@v0.1.8
       with:
-        host: ${{ secrets.EC2_HOST }}
-        username: ${{ secrets.EC2_USER }}
-        key: ${{ secrets.EC2_PRIVATE_KEY }}
+        host: ${{ secrets.PROD_EC2_HOST }}
+        username: ${{ secrets.PROD_EC2_USER }}
+        key: ${{ secrets.PROD_EC2_PRIVATE_KEY }}
         script: |
           # Pull the latest images
           docker pull $DOCKER_USERNAME/springboot-web:latest
