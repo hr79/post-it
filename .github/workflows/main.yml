@@ -65,7 +65,7 @@ jobs:
         IMAGE_TAG: latest
         # DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       run: |
-        docker build -t $PROD_DOCKER_USERNAME/$IMAGE_NAME:$IMAGE_TAG ./postIt-backend --push
+        docker build -t $DOCKER_USERNAME/$IMAGE_NAME:$IMAGE_TAG ./postIt-backend --push
     #   run: |
     #     docker buildx build --no-cache --platform linux/amd64,linux/arm64 -t $DOCKER_REGISTRY_URL/springboot-web:latest ./postIt-backend --push
 
@@ -86,8 +86,8 @@ jobs:
         key: ${{ secrets.EC2_PRIVATE_KEY }}
         script: |
           # Pull the latest images
-          docker pull ${DOCKER_REGISTRY_URL}/springboot-web:latest
-          docker pull ${DOCKER_REGISTRY_URL}/flutter-web:latest
+          docker pull $DOCKER_USERNAME/springboot-web:latest
+          docker pull $DOCKER_USERNAME/flutter-web:latest
 
           # Restart the containers using docker-compose
           cd /home/ec2-user
