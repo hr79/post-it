@@ -69,6 +69,11 @@ jobs:
     #   run: |
     #     docker buildx build --no-cache --platform linux/amd64,linux/arm64 -t $DOCKER_REGISTRY_URL/springboot-web:latest ./postIt-backend --push
 
+    - name: Set up Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: "stable"
+        
     - name: Build Flutter Web
       working-directory: ./postIt-frontend
       run: flutter build web
