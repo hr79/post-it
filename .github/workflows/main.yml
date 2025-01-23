@@ -104,3 +104,7 @@ jobs:
           cd /home/ec2-user
           docker compose -f docker-compose.prod.yml down
           docker compose -f docker-compose.prod.yml up --build
+
+    - name: Mark workflow successful
+      run: |
+        echo "::set-output name=success::true"
