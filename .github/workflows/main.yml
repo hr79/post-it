@@ -105,6 +105,8 @@ jobs:
           # Restart the containers using docker-compose
           cd /home/ec2-user
           docker compose -f docker-compose.prod.yml down
+          docker rmi springboot-web
+          docker rmi flutter-web
           docker compose -f docker-compose.prod.yml up --build
 
     - name: Mark workflow successful
