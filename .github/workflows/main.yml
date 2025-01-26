@@ -97,14 +97,18 @@ jobs:
         host: ${{ secrets.PROD_EC2_HOST }}
         username: ${{ secrets.PROD_EC2_USER }}
         key: ${{ secrets.PROD_EC2_PRIVATE_KEY }}
+        # envs:
+          # DOCKER_USERNAME: ${{ secrets.PROD_DOCKER_USERNAME }}
         script: |
+          export DOCKER_USERNAME="${{ secrets.PROD_DOCKER_USERNAME }}"
+          
           cd /home/ec2-user
           docker compose -f docker-compose.prod.yml down
           
           # Remove previous version images
 
-          docker rmi hyerim12/springboot-web
-          docker rmi hyerim12/flutter-web
+          docker rmi $DOCKER_USERNAME/springboot-web
+          docker rmi $DOCKER_USERNAME/flutter-web
           
           # Pull the latest images
           
