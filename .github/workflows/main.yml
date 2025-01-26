@@ -56,6 +56,8 @@ jobs:
 
     - name: Build the project
       working-directory: ./postIt-backend
+      env:
+        JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
       run: ./gradlew clean build -x test
         
     # backend
