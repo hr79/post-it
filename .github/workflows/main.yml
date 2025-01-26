@@ -102,14 +102,17 @@ jobs:
           docker compose -f docker-compose.prod.yml down
           
           # Remove previous version images
-          docker rmi $DOCKER_USERNAME/springboot-web
-          docker rmi $DOCKER_USERNAME/flutter-web
+
+          docker rmi hyerim12/springboot-web
+          docker rmi hyerim12/flutter-web
           
           # Pull the latest images
+          
           docker pull $DOCKER_USERNAME/springboot-web:latest
           docker pull $DOCKER_USERNAME/flutter-web:latest
 
           # Restart the containers using docker-compose
+          
           docker compose -f docker-compose.prod.yml up --build
 
     - name: Mark workflow successful
