@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:postit_frontend/model/post.dart';
 import 'package:postit_frontend/service/main_service.dart';
 
@@ -13,7 +14,7 @@ class MainController extends GetxController {
   RxList<Post> postList = <Post>[].obs;
   RxInt pageNum = 0.obs;
   RxBool isLoggedIn = false.obs; // 로그인 한 상태인지
-  final _storage = FlutterSecureStorage();
+  final _storage = GetStorage();
 
   getPostlist() async {
     List<Post>? pagingPost = await _mainService.getPagingPost(pageNum.value);
@@ -52,7 +53,7 @@ class MainController extends GetxController {
   }
 
   Future<void> checkLoginStatus() async {
-    String? authToken = await _storage.read(key: "token");
+    String? authToken = await _storage.read("token");
     print("authtoken = $authToken");
 
     if (authToken == null) {
@@ -62,7 +63,7 @@ class MainController extends GetxController {
     }
     if (authToken != null && !_isTokenAlive(authToken)) {
       isLoggedIn.value = false;
-      await _storage.delete(key: "token");
+      await _storage.remove("token");
       print("token deleted!");
 
       return;

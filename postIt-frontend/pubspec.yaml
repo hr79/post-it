@@ -59,6 +59,7 @@ dependencies:
   go_router: ^14.6.3
   provider: ^6.1.2
   dart_jsonwebtoken: ^2.14.2
+  get_storage: ^2.1.1
 
 
 dev_dependencies:
