@@ -1,17 +1,17 @@
 import 'package:dio/dio.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:postit_frontend/app_route.dart';
 
 class ApiClient {
   final Dio _dio = Dio();
-  final _storage = const FlutterSecureStorage();
+  final _storage = GetStorage();
   final basedUrl = AppRoute.basedUrl;
 
   ApiClient() {
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
-          final accessToken = await _storage.read(key: "token");
+          final accessToken = _storage.read("token");
           if (accessToken != null) {
             options.headers["Authorization"] = "Bearer $accessToken";
           }
@@ -29,7 +29,7 @@ class ApiClient {
             print(reissueResp.data);
 
             String newAccessToken = reissueResp.data;
-            await _storage.write(key: "token", value: newAccessToken);
+            _storage.write("token", newAccessToken);
 
             // 이전 요청 재시도
             var options = Options(
@@ -58,7 +58,7 @@ class ApiClient {
   }
 
   Future<Response> post(String path, Object data) async {
-    String? authToken = await _storage.read(key: "token");
+    String? authToken = _storage.read("token");
     return await _dio.post(
       path,
       data: data,

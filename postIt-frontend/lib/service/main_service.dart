@@ -1,12 +1,12 @@
 import 'package:dio/dio.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:postit_frontend/app_route.dart';
 import 'package:postit_frontend/model/post.dart';
 
 class MainService extends GetxController {
   final Dio _dio = Dio();
-  final storage = FlutterSecureStorage();
+  final storage = GetStorage();
 
   // final String basedUrl = "http://13.209.85.84:8080/";
   // final String basedUrl = "http://13.209.85.84/api"; // ec2 배포했을떼
@@ -45,6 +45,7 @@ class MainService extends GetxController {
 
       await _setTokenInStorage(resp);
 
+      print("로그인 성공");
       return true;
     } on DioException catch (e) {
       print(e.response);
@@ -60,11 +61,12 @@ class MainService extends GetxController {
     String? value = map["access_token"];
     print(value);
 
-    await storage.write(key: "token", value: value);
+    storage.write("token", value);
+    print("토큰 저장 완료");
   }
 
   void logOut() async {
-    await storage.delete(key: "token");
+    storage.remove("token");
     print("토큰 삭제 완료");
   }
 }

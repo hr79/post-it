@@ -2,8 +2,8 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:postit_frontend/app_route.dart';
 import 'package:postit_frontend/model/post.dart';
 
@@ -15,9 +15,8 @@ class DetailPageController extends GetxController {
   final String basedUrl = AppRoute.basedUrl; // local
   Rxn<Post> post = Rxn();
   RxList<Comment> comments = RxList();
-  final _storage = FlutterSecureStorage();
+  final _storage = GetStorage();
   TextEditingController commentController = TextEditingController();
-
 
   getDetailPost(int id) async {
     print(":::: getDetailPost");
@@ -44,8 +43,9 @@ class DetailPageController extends GetxController {
     print(":::: saveComment");
     String comment = commentController.text;
 
-    String? token = await _storage.read(key: "token");
-    var response = await _dio.post("$basedUrl/board/$id/comment",
+    String? token = _storage.read("token");
+    var response = await _dio.post(
+      "$basedUrl/board/$id/comment",
       data: {
         "content": comment,
         "author": "anonymous",
@@ -57,20 +57,8 @@ class DetailPageController extends GetxController {
     print(response.toString());
   }
 
-  setCommentController(String inputText){
+  setCommentController(String inputText) {
     commentController = TextEditingController(text: inputText);
     print(commentController.text);
   }
-
-  @override
-  void onReady() {
-
-  }
-
-  @override
-  void onInit() {
-
-  }
-
-
 }
