@@ -117,7 +117,7 @@ jobs:
 
           # Restart the containers using docker-compose
           
-          docker compose -f docker-compose.prod.yml up --build --detach
+          docker compose -f docker-compose.prod.yml up --detach
 
     - name: Mark workflow successful
       run: |
