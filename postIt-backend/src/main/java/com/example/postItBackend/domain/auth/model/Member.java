@@ -1,4 +1,4 @@
-package com.example.postItBackend.domain.auth;
+package com.example.postItBackend.domain.auth.model;
 
 import com.example.postItBackend.domain.BaseEntity;
 import jakarta.persistence.*;

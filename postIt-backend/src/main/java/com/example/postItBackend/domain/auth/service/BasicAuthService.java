@@ -1,5 +1,7 @@
-package com.example.postItBackend.domain.auth;
+package com.example.postItBackend.domain.auth.service;
 
+import com.example.postItBackend.domain.auth.MemberRepository;
+import com.example.postItBackend.domain.auth.model.Member;
 import com.example.postItBackend.dto.RegisterRequestDto;
 import com.example.postItBackend.dto.AuthResponseDto;
 import com.example.postItBackend.common.exception.ErrorMessages;

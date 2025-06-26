@@ -1,6 +1,6 @@
 package com.example.postItBackend.domain.auth;
 
-import com.example.postItBackend.domain.auth.Member;
+import com.example.postItBackend.domain.auth.model.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
