@@ -1,6 +1,6 @@
-package com.example.postItBackend.domain.post;
+package com.example.postItBackend.domain.post.repository;
 
-import com.example.postItBackend.dto.PostListPageDto;
+import com.example.postItBackend.domain.post.dto.PostListPageDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

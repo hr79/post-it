@@ -1,4 +1,4 @@
-package com.example.postItBackend.domain.post;
+package com.example.postItBackend.domain.post.repository;
 
 import com.example.postItBackend.domain.post.Post;
 import jakarta.annotation.Nullable;
