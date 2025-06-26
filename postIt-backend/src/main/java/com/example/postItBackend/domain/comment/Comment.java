@@ -1,7 +1,7 @@
 package com.example.postItBackend.domain.comment;
 
 import com.example.postItBackend.domain.BaseEntity;
-import com.example.postItBackend.domain.auth.Member;
+import com.example.postItBackend.domain.auth.model.Member;
 import com.example.postItBackend.domain.post.Post;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
