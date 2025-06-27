@@ -1,8 +1,14 @@
 package com.example.postItBackend.domain.auth;
 
-import com.example.postItBackend.dto.ApiResponseVer3;
-import com.example.postItBackend.dto.RegisterRequestDto;
-import com.example.postItBackend.dto.AuthResponseDto;
+import com.example.postItBackend.domain.auth.service.BasicAuthService;
+import com.example.postItBackend.common.response.ApiResponse;
+import com.example.postItBackend.domain.auth.dto.RegisterRequestDto;
+import com.example.postItBackend.domain.auth.dto.AuthResponseDto;
+import com.example.postItBackend.domain.auth.service.TokenService;
+import com.example.postItBackend.domain.auth.service.oauth2.AuthServiceFactory;
+import com.example.postItBackend.domain.auth.service.oauth2.GoogleOAuth2Service;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -14,6 +20,9 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @RequestMapping("/api/auth")
 public class AuthController {
+    private final AuthServiceFactory authServiceFactory;
+    private final TokenService tokenService;
+    private final GoogleOAuth2Service googleOAuth2Service;
     private final BasicAuthService basicAuthService;
 
     // 가입
@@ -22,6 +31,13 @@ public class AuthController {
             @RequestBody RegisterRequestDto requestDto) {
         AuthResponseDto dto = basicAuthService.register(requestDto);
         return ResponseEntity.ok()
-                .body(ApiResponseVer3.success(dto, HttpStatus.OK.value(), "Successful Register"));
+                .body(ApiResponse.success(dto, HttpStatus.OK.value(), "Successful Register"));
+    }
+
+    // 토큰 재발급
+    @PostMapping("/reissue")
+    public ResponseEntity<?> reissue(HttpServletRequest request, HttpServletResponse response) {
+        String reissuedToken = tokenService.reissue(request, response);
+        return ResponseEntity.ok().body(reissuedToken);
     }
 }
