@@ -2,7 +2,7 @@ package com.example.postItBackend.domain.auth.filter;
 
 
 import com.example.postItBackend.domain.auth.service.RedisService;
-import com.example.postItBackend.dto.LoginRequestDto;
+import com.example.postItBackend.domain.auth.dto.LoginRequestDto;
 import com.example.postItBackend.common.util.JwtUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
