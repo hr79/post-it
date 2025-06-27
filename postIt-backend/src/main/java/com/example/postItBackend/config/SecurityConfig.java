@@ -6,7 +6,7 @@ import com.example.postItBackend.domain.auth.filter.JwtAuthorizationFilter;
 import com.example.postItBackend.domain.auth.service.RedisService;
 import com.example.postItBackend.domain.auth.service.UserDetailsServiceImpl;
 import com.example.postItBackend.domain.auth.MemberRepository;
-import com.example.postItBackend.service.GoogleOAuth2Service;
+import com.example.postItBackend.domain.auth.oauth.service.GoogleOAuth2Service;
 import com.example.postItBackend.common.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 
