@@ -10,6 +10,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -21,6 +22,7 @@ public class TokenService {
     private final JwtUtil jwtUtil;
     private final RedisService redisService;
 
+    @Transactional
     public String reissue(HttpServletRequest request, HttpServletResponse response) {
         log.info("#1TokenService.reissue");
         String authorization = request.getHeader("Authorization");
@@ -54,6 +56,7 @@ public class TokenService {
         return newAccessToken;
     }
 
+    @Transactional
     public void logout(UserDetails userDetails, HttpServletRequest request) {
         log.info("#1TokenService.logout");
         String authorization = request.getHeader("Authorization");
