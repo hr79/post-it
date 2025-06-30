@@ -6,7 +6,7 @@
 > 
 > 회원가입, 로그인, 게시글 및 댓글 작성/조회/수정/삭제, 조회수 기능을 제공하며, 대규모 트래픽 대응을 고려한 아키텍처와 **성능 최적화**를 목표로 개발하였습니다.
 > 
-> Redis를 이용한 Refresh Token 관리, QueryDSL을 활용한 복잡한 데이터 조회 최적화, AWS EC2 서버 운영, Github Action-Docker 기반 배포까지 전체 개발-운영 과정을 직접 수행했습니다.
+> Redis를 이용한 Refresh Token 관리, QueryDSL을 활용한 복잡한 데이터 조회 최적화, AWS EC2 서버 운영, Github Action-Docker 기반 자동 배포까지 전체 개발-운영 과정을 직접 수행했습니다.
 
 ## 🧱 Software Architecture
 
@@ -42,8 +42,8 @@
 
 ## 🚀 주요 기능 (Key Features)
 - **JWT 기반 로그인 / 인증 시스템**
-	  - Access Token / Refresh Token 구조
-	  - Redis를 이용한 Refresh Token 저장 및 검증
+  - Access Token / Refresh Token 구조
+  - Redis를 이용한 Refresh Token 저장 및 검증
 
 - **Google OAuth 2.0 로그인**
 	- 구글 소셜 계정 연동을 통한 간편 로그인
@@ -53,8 +53,8 @@
 	- Pageable을 활용한 페이징 처리로 성능 최적화
 
 - **조회수 캐싱 + 일괄 저장 전략**
-	  - Spring Cache (ConcurrentMapCacheManager) 사용
-	  - 트래픽 분산을 위해 일정 주기마다 DB에 일괄 업데이트
+  - Spring Cache (ConcurrentMapCacheManager) 사용
+  - 트래픽 분산을 위해 일정 주기마다 DB에 일괄 업데이트
 - CRUD 구현
 	- 게시글 작성(Create), 조회(Read), 수정(Update), 삭제(Delete) 기능 제공. 
 
@@ -62,7 +62,7 @@
 ## ⚙️ CI/CD 구성
 
 - **GitHub Actions 기반의 자동 배포 파이프라인 구성**
-  - `main` 브랜치에 push 시, GitHub Actions에서 애플리케이션을 빌드하고 Docker 이미지 생성
+  - `master` 브랜치에 push 시, GitHub Actions에서 애플리케이션을 빌드하고 Docker 이미지 생성
   - EC2 서버에 SSH 접속 후 기존 컨테이너를 종료하고 새로운 컨테이너를 실행하는 방식으로 재배포 수행
   - 현재는 테스트 단계는 포함되지 않았으며, **무중단 배포는 아님**
   - `.github/workflows/deploy.yml`에 배포 워크플로우 정의 [보러가기](https://github.com/hr79/post-it/blob/main/.github/workflows/main.yml)
@@ -87,7 +87,7 @@
 
 ## 🔍 트러블슈팅
 
-- ✅ 조회수 업데이트 누락: *조회수 캐시 & 일괄 업데이트**
+- ✅ 조회수 업데이트 누락: **조회수 캐시 & 일괄 업데이트**
 	- 원인: 동시에 여러 사용자가 같은 글을 조회하면 `view_count++`가 경쟁 상태(Race Condition) 발생
 	- 해결: `ConcurrentMapCache`에 누적 후 주기적으로 DB에 일괄 반영 (캐시 전략 도입 배경)
 	- [링크: Caching & Update 전략](https://www.notion.so/DB-222e74104e088053a5bcc0e30de99df7?source=copy_link)
