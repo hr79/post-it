@@ -1,7 +1,7 @@
 package com.example.postItBackend.domain.post.repository;
 
 import com.example.postItBackend.domain.post.dto.PostListPageDto;
-import com.example.postItBackend.model.QPost;
+import com.example.postItBackend.domain.post.QPost;
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.CaseBuilder;
