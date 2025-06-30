@@ -16,7 +16,7 @@
 
 [//]: # (![erd]&#40;https://github.com/user-attachments/assets/09af3014-54db-458a-822c-ba73cd5320a7&#41;)
 
-<img src="https://github.com/user-attachments/assets/09af3014-54db-458a-822c-ba73cd5320a7" width=70%/>
+<img src="https://github.com/user-attachments/assets/09af3014-54db-458a-822c-ba73cd5320a7" width=50%/>
 
 ## 🧱 시스템 설계 및 기술 스택
 
