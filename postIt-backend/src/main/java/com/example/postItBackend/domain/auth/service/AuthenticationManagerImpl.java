@@ -1,7 +1,5 @@
 package com.example.postItBackend.domain.auth.service;
 
-import com.example.postItBackend.domain.auth.service.UserDetailsServiceImpl;
-import com.example.postItBackend.exception.CustomException;
 import com.example.postItBackend.common.exception.ErrorMessages;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -25,7 +23,7 @@ public class AuthenticationManagerImpl implements AuthenticationManager {
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
         if (!userDetails.getPassword().equals(password)) {
-            throw new CustomException(ErrorMessages.PASSWORD_NOT_CORRECT);
+            throw new IllegalArgumentException(ErrorMessages.PASSWORD_NOT_CORRECT);
         }
 
         return new UsernamePasswordAuthenticationToken(userDetails, password, userDetails.getAuthorities());
