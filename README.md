@@ -1,5 +1,7 @@
 # POST-IT
 
+[🚪구경하기 ENTER HERE](http://3.39.171.6/)
+
 ## 📌 프로젝트 개요
 
 > **Flutter 기반 웹 프론트엔드 + Spring Boot 백엔드**로 개발한 **게시판 웹 애플리케이션**입니다.
@@ -97,74 +99,54 @@
 	- [링크: EntityGraph 적용](https://www.notion.so/JPA-N-1-EntityGraph-222e74104e0880b3ab68c833e3260b85?source=copy_link)
 
 ---
-## 🧩 패키지 구조
+## 🧩 백엔드 패키지 구조
 ```
 .
 ├── common
 │   ├── exception
-│   │   └── ErrorMessages.java
 │   ├── response
-│   │   └── ApiResponse.java
 │   └── util
-│       ├── CacheUtil.java
-│       └── JwtUtil.java
 ├── config
-│   ├── AppConfig.java
-│   ├── CacheConfig.java
-│   ├── RedisConfig.java
-│   ├── SecurityConfig.java
-│   └── WebConfig.java
-├── domain
-│   ├── auth
-│   │   ├── AuthController.java
-│   │   ├── dto
-│   │   │   ├── AuthResponseDto.java
-│   │   │   ├── LoginRequestDto.java
-│   │   │   └── RegisterRequestDto.java
-│   │   ├── filter
-│   │   │   ├── JwtAuthenticationFilter.java
-│   │   │   └── JwtAuthorizationFilter.java
-│   │   ├── MemberRepository.java
-│   │   ├── model
-│   │   │   ├── CustomUserDetails.java
-│   │   │   └── Member.java
-│   │   ├── oauth
-│   │   │   ├── OAuth2UserImpl.java
-│   │   │   ├── OAuthUserInfo.java
-│   │   │   └── service
-│   │   │       ├── AuthService.java
-│   │   │       ├── AuthServiceFactory.java
-│   │   │       ├── GoogleOAuth2Service.java
-│   │   │       └── NaverAuthService.java
-│   │   └── service
-│   │       ├── AuthenticationManagerImpl.java
-│   │       ├── BasicAuthService.java
-│   │       ├── RedisService.java
-│   │       ├── TokenService.java
-│   │       └── UserDetailsServiceImpl.java
-│   ├── BaseEntity.java
-│   ├── comment
-│   │   ├── Comment.java
-│   │   ├── CommentController.java
-│   │   ├── CommentRepository.java
-│   │   ├── CommentService.java
-│   │   └── dto
-│   │       ├── CommentRequestDto.java
-│   │       └── CommentResponseDto.java
-│   ├── enums
-│   │   └── LoginType.java
-│   └── post
-│       ├── dto
-│       │   ├── PostListPageDto.java
-│       │   ├── PostRequestDto.java
-│       │   └── PostResponseDto.java
-│       ├── Post.java
-│       ├── PostController.java
-│       ├── PostService.java
-│       └── repository
-│           ├── PostQueryRepository.java
-│           ├── PostQueryRepositoryImpl.java
-│           └── PostRepository.java
-└── PostItBackendApplication.java
+└── domain
+    ├── auth
+    │   ├── dto
+    │   ├── filter
+    │   ├── model
+    │   ├── oauth
+    │   │   └── service
+    │   └── service
+    ├── comment
+    │   └── dto
+    ├── enums
+    └── post
+        ├── dto
+        └── repository
 
+```
+
+## 🧩 프론트엔드 패키지 구조
+```
+.
+├── assets
+├── build
+│   └── flutter_assets
+│       ├── assets
+│       ├── fonts
+│       ├── packages
+│       │   ├── cupertino_icons
+│       │   │   └── assets
+│       │   └── font_awesome_flutter
+│       │       └── lib
+│       │           └── fonts
+│       └── shaders
+├── lib
+│   ├── api
+│   ├── controller
+│   ├── model
+│   ├── service
+│   ├── view
+│   └── widget
+├── test
+├── web
+    └── icons
 ```
