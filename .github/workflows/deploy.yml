@@ -81,7 +81,7 @@ jobs:
     - name: Build Flutter Web
       working-directory: ./postIt-frontend
       run: flutter build web
-      
+
     - name: Build and push frontend Docker image
       env:
         IMAGE_NAME: flutter-web
