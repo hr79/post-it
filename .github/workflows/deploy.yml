@@ -80,7 +80,7 @@ jobs:
           
     - name: Build Flutter Web
       working-directory: ./postIt-frontend
-      run: flutter build web --no-pwa
+      run: flutter build web
 
     - name: Build and push frontend Docker image
       env:
