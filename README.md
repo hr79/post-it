@@ -1,6 +1,7 @@
 # POST-IT
 
-[🚪구경하기 ENTER HERE](http://3.39.171.6/)
+[🚪구경하기 ENTER HERE](https://post-it-service.shop/)
+
 
 ## 📌 프로젝트 개요
 
@@ -150,3 +151,4 @@
 ├── web
     └── icons
 ```
+
