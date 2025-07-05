@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -29,6 +30,9 @@ public class AuthController {
     private final TokenService tokenService;
     private final GoogleOAuth2Service googleOAuth2Service;
     private final BasicAuthService basicAuthService;
+
+    @Value("${main-page}")
+    private String mainPage;
 
     // 가입
     @PostMapping("/register")
@@ -65,7 +69,8 @@ public class AuthController {
         log.info("requestURI : {}", request.getRequestURL());
         AuthResponseDto dto = googleOAuth2Service.handleOAuthCallback(code, response);
 
-        return ResponseEntity.status(HttpStatus.SEE_OTHER).location(URI.create("http://13.209.85.84/")).build();
+        log.info("mainPage : {}", mainPage);
+        return ResponseEntity.status(HttpStatus.SEE_OTHER).location(URI.create(mainPage)).build();
     }
 
     // 로그아웃
