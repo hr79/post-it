@@ -57,14 +57,14 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 // 경로병 권한 설정
                 .authorizeHttpRequests(authorizeRequests -> authorizeRequests
-                                .requestMatchers(HttpMethod.GET, "api/**").permitAll()
-                                .requestMatchers(HttpMethod.POST, "api/login").permitAll()
-                                .requestMatchers(HttpMethod.GET, "api/login").permitAll()
-                                .requestMatchers(HttpMethod.POST, "api/auth/register/**").permitAll()
-                                .requestMatchers(HttpMethod.POST, "api/auth/reissue").permitAll()
-                                .requestMatchers(HttpMethod.POST, "api/auth/oauth2-login").permitAll()
-                                .requestMatchers("api/auth/oauth2/callback").permitAll()
-                                .requestMatchers("favicon.ico").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/**").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/api/login").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/login").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/api/auth/register/**").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/api/auth/reissue").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/api/auth/oauth2-login").permitAll()
+                                .requestMatchers("/api/auth/oauth2/callback").permitAll()
+                                .requestMatchers("/favicon.ico").permitAll()
 //                        .requestMatchers(HttpMethod.GET, "**/*.ico").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/board*").permitAll()
                                 .anyRequest().authenticated() // 그 외의 경로는 모두 인증이 필요
@@ -92,8 +92,11 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://13.209.85.84"));
-        configuration.setAllowedOrigins(List.of("http://localhost:8081")); // 허용할 Origin
+        configuration.setAllowedOrigins(List.of(
+                "http://localhost:8081",
+                "http://13.209.85.84",
+                "https://post-it-service.shop"
+        ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         configuration.setAllowCredentials(true); // 쿠키 인증 허용 (필요 시 활성화)

@@ -1,5 +1,5 @@
-
 class AppRoute {
-  // static const basedUrl = "http://localhost:8080/api";
-  static const basedUrl = "http://3.39.171.6/api";
+  static final basedUrl = Uri.base.origin.contains("localhost")
+      ? "http://localhost:8080/api"
+      : "https://post-it-service.shop/api";
 }
