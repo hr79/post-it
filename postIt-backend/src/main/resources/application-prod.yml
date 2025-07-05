@@ -32,3 +32,5 @@ spring:
 
 jwt:
   secret-key: ${JWT_SECRET_KEY}
+
+main-page: https://post-it-service.shop
