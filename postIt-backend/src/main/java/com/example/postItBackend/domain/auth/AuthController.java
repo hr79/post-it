@@ -65,7 +65,16 @@ public class AuthController {
         log.info("requestURI : {}", request.getRequestURL());
         AuthResponseDto dto = googleOAuth2Service.handleOAuthCallback(code, response);
 
-        return ResponseEntity.status(HttpStatus.SEE_OTHER).location(URI.create("http://13.209.85.84/")).build();
+        log.info("scheme: {}", request.getScheme());
+        String mainPage = null;
+
+        if (request.getScheme().equals("http")) {
+            mainPage = "http://localhost:8080";
+        } else if (request.getScheme().equals("https")) {
+            mainPage = "https://post-it-service.shop";
+        }
+
+        return ResponseEntity.status(HttpStatus.SEE_OTHER).location(URI.create(mainPage)).build();
     }
 
     // 로그아웃
