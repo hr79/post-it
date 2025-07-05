@@ -92,8 +92,11 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://13.209.85.84"));
-        configuration.setAllowedOrigins(List.of("http://localhost:8081")); // 허용할 Origin
+        configuration.setAllowedOrigins(List.of(
+                "http://localhost:8081",
+                "http://13.209.85.84",
+                "https://post-it-service.shop"
+        ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         configuration.setAllowCredentials(true); // 쿠키 인증 허용 (필요 시 활성화)
