@@ -19,7 +19,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
+import java.io.IOException;
 
 @Slf4j
 @RestController
@@ -52,25 +52,35 @@ public class AuthController {
 
     // 소셜로그인
     @GetMapping("/oauth2-login")
-    public ResponseEntity<?> oauth2Login(@RequestParam(value = "login_type", required = false) String loginType) {
+    public ResponseEntity<String> oauth2Login(@RequestParam(value = "login_type", required = false) String loginType, HttpServletResponse response) throws IOException {
         log.info("loginType : {}", loginType);
         LoginType loginTypeEnum = LoginType.valueOf(loginType.toUpperCase());
         String oAuth2Url = authServiceFactory.getAuthService(loginTypeEnum).getOAuth2Url();
 
-        return ResponseEntity.status(HttpStatus.SEE_OTHER).location(URI.create(oAuth2Url)).build();
+        return ResponseEntity.ok().body(oAuth2Url);
     }
 
     // google auth auto-redirect callback
     @GetMapping("/oauth2/callback")
-    public ResponseEntity<?> callback(@RequestParam("code") String code,
+    public void callback(@RequestParam("code") String code,
                                       @RequestParam(value = "state", required = false) String state,
                                       HttpServletRequest request,
-                                      HttpServletResponse response) {
+                                      HttpServletResponse response) throws IOException {
         log.info("requestURI : {}", request.getRequestURL());
-        AuthResponseDto dto = googleOAuth2Service.handleOAuthCallback(code, response);
-
+        String accessToken = googleOAuth2Service.handleOAuthCallback(code, response);
         log.info("mainPage : {}", mainPage);
-        return ResponseEntity.status(HttpStatus.SEE_OTHER).location(URI.create(mainPage)).build();
+
+//        Flutter (현재탭) → loginUrl 접속
+//↓
+//        Google 로그인 → Spring 콜백
+//↓
+//        Spring: accessToken 발급 → Flutter callback URL로 리다이렉트
+//↓
+//        Flutter callback 페이지에서 토큰 저장 → 홈으로 리다이렉트
+
+        String redirectUrl = mainPage + "/auth/social/callback?access_token=" + accessToken;
+        log.info("redirectUrl : {}", redirectUrl);
+        response.sendRedirect(redirectUrl);
     }
 
     // 로그아웃

@@ -12,7 +12,7 @@ public class NaverAuthService implements AuthService {
     }
 
     @Override
-    public AuthResponseDto handleOAuthCallback(String code, HttpServletResponse response) {
+    public String handleOAuthCallback(String code, HttpServletResponse response) {
         return null;
     }
 }
