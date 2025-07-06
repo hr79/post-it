@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:postit_frontend/app_route.dart';
 import 'package:postit_frontend/controller/main_controller.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart'; // Font Awesome 아이콘 사용
 import 'package:postit_frontend/view/post_write_page.dart';
@@ -60,38 +59,38 @@ class MainPage extends GetView<MainController> {
                   child: Text('로그아웃'),
                 ),
               ],
-              child: const Text('MY', style: TextStyle(color: Colors.black)), // MY 텍스트
+              child: const Text('MY',
+                  style: TextStyle(color: Colors.black)), // MY 텍스트
             ),
           ),
           Padding(
             padding: const EdgeInsets.only(right: 16.0), // 로그인 버튼 우측 여백
             child: Obx(
-                  () =>
-              controller.isLoggedIn.value
+              () => controller.isLoggedIn.value
                   ? TextButton(
-                // ElevatedButton 대신 TextButton 사용
-                onPressed: () {
-                  // 로그아웃 기능 구현
-                  controller.logOut();
-                },
-                style: TextButton.styleFrom(
-                  foregroundColor: Colors.black, // 텍스트 색상 검정색
-                  textStyle: const TextStyle(fontSize: 16),
-                ),
-                child: const Text('Log Out'),
-              )
+                      // ElevatedButton 대신 TextButton 사용
+                      onPressed: () {
+                        // 로그아웃 기능 구현
+                        controller.logOut();
+                      },
+                      style: TextButton.styleFrom(
+                        foregroundColor: Colors.black, // 텍스트 색상 검정색
+                        textStyle: const TextStyle(fontSize: 16),
+                      ),
+                      child: const Text('Log Out'),
+                    )
                   : TextButton(
-                // ElevatedButton 대신 TextButton 사용
-                onPressed: () {
-                  // 로그인 기능 구현
-                  showLoginDialog(context);
-                },
-                style: TextButton.styleFrom(
-                  foregroundColor: Colors.black, // 텍스트 색상 검정색
-                  textStyle: const TextStyle(fontSize: 16),
-                ),
-                child: const Text('Log in'),
-              ),
+                      // ElevatedButton 대신 TextButton 사용
+                      onPressed: () {
+                        // 로그인 기능 구현
+                        showLoginDialog(context);
+                      },
+                      style: TextButton.styleFrom(
+                        foregroundColor: Colors.black, // 텍스트 색상 검정색
+                        textStyle: const TextStyle(fontSize: 16),
+                      ),
+                      child: const Text('Log in'),
+                    ),
             ),
           ),
         ],
@@ -102,20 +101,19 @@ class MainPage extends GetView<MainController> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Obx(
-              () =>
-          controller.postList.isEmpty
+          () => controller.postList.isEmpty
               ? Text("No Post")
               : ListView.builder(
-            // Column -> ListView로 변경하여 스크롤 가능하게 함
-            itemCount: controller.postList.length,
-            itemBuilder: (BuildContext context, int index) {
-              var post = controller.postList[index];
-              return BulletinItem(
-                  title: post.title!,
-                  viewCount: post.viewCount!,
-                  post: post);
-            },
-          ),
+                  // Column -> ListView로 변경하여 스크롤 가능하게 함
+                  itemCount: controller.postList.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    var post = controller.postList[index];
+                    return BulletinItem(
+                        title: post.title!,
+                        viewCount: post.viewCount!,
+                        post: post);
+                  },
+                ),
         ),
       ),
       floatingActionButton: Padding(
@@ -251,9 +249,7 @@ class MainPage extends GetView<MainController> {
                         children: [
                           ElevatedButton(
                             onPressed: () {
-                              launchUrlString(
-                                  "${AppRoute.basedUrl}/auth/oauth2-login?login_type=google");
-                              // js.context.call('openGoogleAuthPopup', ["http://localhost:8080/auth/oauth2-login?login_type=google"]);
+                              controller.getOAuth2Url();
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.white,
@@ -261,7 +257,7 @@ class MainPage extends GetView<MainController> {
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8.0),
                                 side:
-                                const BorderSide(color: Color(0xFFD8D8D8)),
+                                    const BorderSide(color: Color(0xFFD8D8D8)),
                               ),
                               minimumSize: const Size(140, 48),
                               // fixedSize: Size(200, 40)

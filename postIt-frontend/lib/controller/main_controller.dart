@@ -1,11 +1,10 @@
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:postit_frontend/model/post.dart';
 import 'package:postit_frontend/service/main_service.dart';
+import 'dart:html' as html;
 
 class MainController extends GetxController {
   final MainService _mainService = MainService();
@@ -48,12 +47,27 @@ class MainController extends GetxController {
   void onInit() async {
     super.onInit();
     print(":::: MainController.onInit");
-    await checkLoginStatus();
+    checkLoginStatus();
     getPostlist();
   }
 
-  Future<void> checkLoginStatus() async {
-    String? authToken = await _storage.read("token");
+  getOAuth2Url() async {
+    String? googleClientUrl = await _mainService.getOAuth2Url();
+    print("googleClientUrl: $googleClientUrl");
+
+    if (googleClientUrl != null) {
+      _handleOAuthCallback(googleClientUrl);
+    }
+  }
+
+  void _handleOAuthCallback(String googleClientUrl) {
+    print("handleOAuthCallback");
+    // 현재 탭에서 열기
+    html.window.location.href = googleClientUrl;
+  }
+
+  void checkLoginStatus() {
+    String? authToken = _storage.read("token");
     print("authtoken = $authToken");
 
     if (authToken == null) {
@@ -61,9 +75,9 @@ class MainController extends GetxController {
 
       return;
     }
-    if (authToken != null && !_isTokenAlive(authToken)) {
+    if (!_isTokenAlive(authToken)) {
       isLoggedIn.value = false;
-      await _storage.remove("token");
+      _storage.remove("token");
       print("token deleted!");
 
       return;
