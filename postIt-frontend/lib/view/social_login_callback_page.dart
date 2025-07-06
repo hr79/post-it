@@ -12,9 +12,12 @@ class SocialLoginCallbackPage extends GetView<SocialLoginCallbackController> {
     print(":::: SocialLoginCallbackPage");
 
     final uri = Uri.base;
-    var fragment = Uri.splitQueryString(Uri.base.fragment);
+    var fragment = uri.fragment;
     print("fragment : $fragment");
-    var accessToken = fragment['access_token'];
+    var queryParam = fragment.contains('?') ? fragment.split('?')[1] : '';
+    print("queryParam : $queryParam");
+    var accessToken = Uri.splitQueryString(queryParam)['access_token'];
+    // var accessToken = fragment['access_token'];
     print("accessToken : $accessToken");
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
