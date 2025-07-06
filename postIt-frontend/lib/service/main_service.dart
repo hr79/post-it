@@ -8,10 +8,6 @@ class MainService extends GetxController {
   final Dio _dio = Dio();
   final storage = GetStorage();
 
-  // final String basedUrl = "http://13.209.85.84:8080/";
-  // final String basedUrl = "http://13.209.85.84/api"; // ec2 배포했을떼
-  // final String basedUrl = "http://localhost:80/api";  // local with nginx
-  // final String basedUrl = "http://localhost:8080/api"; // local
   final String basedUrl = AppRoute.basedUrl; // local
 
   Future<List<Post>?> getPagingPost(int pageNum) async {
@@ -68,5 +64,18 @@ class MainService extends GetxController {
   void logOut() async {
     storage.remove("token");
     print("토큰 삭제 완료");
+  }
+
+  // 소셜 로그인
+  Future<String?> getOAuth2Url() async {
+    print("==== TalkService.getOAuth2Url");
+    try {
+      var res = await _dio.get("$basedUrl/auth/oauth2-login?login_type=google");
+      print(res.data);
+      return res.data;
+    } on DioException catch (e) {
+      print(e.message);
+    }
+    return null;
   }
 }

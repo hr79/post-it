@@ -1,7 +1,6 @@
 package com.example.postItBackend.domain.auth.oauth.service;
 
 import com.example.postItBackend.domain.auth.model.CustomUserDetails;
-import com.example.postItBackend.domain.auth.dto.AuthResponseDto;
 import com.example.postItBackend.domain.auth.model.Member;
 import com.example.postItBackend.domain.auth.MemberRepository;
 import com.example.postItBackend.common.util.JwtUtil;
@@ -52,7 +51,7 @@ public class GoogleOAuth2Service implements AuthService {
     }
 
     @Transactional
-    public AuthResponseDto handleOAuthCallback(String code, HttpServletResponse response) {
+    public String handleOAuthCallback(String code, HttpServletResponse response) {
         log.info(":::#1 handleOAuthCallback:::");
         String GoogleOAuthAccessToken = Optional.of(code)
                 .map(c -> getAccessToken(c))
@@ -83,7 +82,7 @@ public class GoogleOAuth2Service implements AuthService {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(accessToken);
 
-        return new AuthResponseDto(member);
+        return accessToken;
     }
 
     private String setToken(HttpServletResponse response, String username) {
