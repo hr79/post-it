@@ -10,8 +10,12 @@ class SocialLoginCallbackPage extends GetView<SocialLoginCallbackController> {
   @override
   Widget build(BuildContext context) {
     print(":::: SocialLoginCallbackPage");
+
     final uri = Uri.base;
-    final accessToken = uri.queryParameters['access_token'];
+    var fragment = Uri.splitQueryString(Uri.base.fragment);
+    print("fragment : $fragment");
+    var accessToken = fragment['access_token'];
+    print("accessToken : $accessToken");
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (accessToken != null) {
