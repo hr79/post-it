@@ -27,10 +27,7 @@ class SocialLoginCallbackPage extends GetView<SocialLoginCallbackController> {
         } else {
           // 새 탭으로 열린 경우: 홈으로 리디렉트
           print("새탭 상태입니다");
-
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            Navigator.pushReplacementNamed(context, '/');
-          });
+          Get.offAllNamed('/');
         }
       }
     });
