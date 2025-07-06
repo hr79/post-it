@@ -78,7 +78,7 @@ public class AuthController {
 //↓
 //        Flutter callback 페이지에서 토큰 저장 → 홈으로 리다이렉트
 
-        String redirectUrl = mainPage + "/auth/social/callback?access_token=" + accessToken;
+        String redirectUrl = mainPage + "/#/auth/social/callback?access_token=" + accessToken;
         log.info("redirectUrl : {}", redirectUrl);
         response.sendRedirect(redirectUrl);
     }
