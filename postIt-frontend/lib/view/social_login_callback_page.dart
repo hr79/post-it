@@ -26,16 +26,23 @@ class SocialLoginCallbackPage extends GetView<SocialLoginCallbackController> {
         controller.saveToken(accessToken);
 
         // 팝업이면 닫고, 아니면 리디렉션
-        if (html.window.opener != null) {
+        final opener = html.window.opener;
+
+        if (opener != null) {
           print("팝업 상태입니다");
-          html.window.opener!
-              .postMessage({'accessToken': accessToken}, uri.origin);
+          try {
+            opener.postMessage({'accessToken': accessToken}, uri.origin);
+          } catch (e) {
+            print('postMessage 오류: $e');
+          }
           html.window.close(); // 팝업이면 자동으로 닫힘
         } else {
           // 새 탭으로 열린 경우: 홈으로 리디렉트
           print("새탭 상태입니다");
           Get.offAllNamed('/');
         }
+      } else {
+        print("액세스 토큰이 없습니다");
       }
     });
 
