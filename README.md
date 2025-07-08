@@ -23,14 +23,14 @@
 
 ## 🧱 시스템 설계 및 기술 스택
 
-| 영역       | 기술                                   |
-| -------- | ------------------------------------ |
-| Backend  | Java 21, Spring Boot 3.2             |
-| ORM      | Spring Data JPA + QueryDSL           |
-| 인증       | JWT + Redis + OAuth2                 |
-| Database | MySQL                                |
-| Infra    | AWS EC2, Docker, CloudWatch          |
-| 배포       | GitHub Actions + Docker *(자동 배포 구현)* |
+| 영역       | 기술                                                              |
+| -------- |-----------------------------------------------------------------|
+| Backend  | Java 21, Spring Boot 3.2                                        |
+| ORM      | Spring Data JPA + QueryDSL                                      |
+| 인증       | JWT + Redis + OAuth2                                            |
+| Database | MySQL                                                           |
+| Infra    | AWS EC2, Docker, CloudWatch, Nginx, ALB(HTTPS), Route53(DNS 연결) |
+| 배포       | GitHub Actions + Docker *(자동 배포 구현)*                            |
 
 ### 🔧 설계 선택 요약
 
