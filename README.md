@@ -32,6 +32,10 @@
 | Infra    | AWS EC2, Docker, CloudWatch, Nginx, ALB(HTTPS), Route53(DNS 연결) |
 | 배포       | GitHub Actions + Docker *(자동 배포 구현)*                            |
 
+### 🔐 HTTPS & 도메인 연결  
+- HTTPS 적용: AWS Application Load Balancer(ALB)를 사용하여 SSL 인증서(ACM)를 연동하고 HTTPS 트래픽을 안전하게 처리했습니다.  
+- 도메인 연결: Route53을 통해 도메인(post-it-service.shop)을 ALB에 매핑하여 안정적인 HTTPS 접속 환경을 구성했습니다.
+
 ### 🔧 설계 선택 요약
 
 - Stateless 인증 구조를 위해 JWT + Redis 채택
@@ -58,6 +62,7 @@
 - **조회수 캐싱 + 일괄 저장 전략**
   - Spring Cache (ConcurrentMapCacheManager) 사용
   - 트래픽 분산을 위해 일정 주기마다 DB에 일괄 업데이트
+  
 - CRUD 구현
 	- 게시글 작성(Create), 조회(Read), 수정(Update), 삭제(Delete) 기능 제공. 
 
@@ -129,17 +134,6 @@
 ```
 .
 ├── assets
-├── build
-│   └── flutter_assets
-│       ├── assets
-│       ├── fonts
-│       ├── packages
-│       │   ├── cupertino_icons
-│       │   │   └── assets
-│       │   └── font_awesome_flutter
-│       │       └── lib
-│       │           └── fonts
-│       └── shaders
 ├── lib
 │   ├── api
 │   ├── controller
@@ -147,8 +141,7 @@
 │   ├── service
 │   ├── view
 │   └── widget
-├── test
-├── web
+└── web
     └── icons
 ```
 
