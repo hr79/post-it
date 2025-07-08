@@ -2,6 +2,7 @@
 
 [🚪구경하기 ENTER HERE](https://post-it-service.shop/)
 
+<br>
 
 ## 📌 프로젝트 개요
 
@@ -11,9 +12,13 @@
 > 
 > Redis를 이용한 Refresh Token 관리, QueryDSL을 활용한 복잡한 데이터 조회 최적화, AWS EC2 서버 운영, Github Action-Docker 기반 자동 배포까지 전체 개발-운영 과정을 직접 수행했습니다.
 
+<br>
+
 ## 🧱 Software Architecture
 
 ![architecture](https://github.com/user-attachments/assets/be45a92a-8e74-4416-91bc-24d8def4db23)
+
+<br>
 
 ## 🔗 ERD
 
@@ -21,16 +26,26 @@
 
 <img src="https://github.com/user-attachments/assets/09af3014-54db-458a-822c-ba73cd5320a7" width=50%/>
 
+<br>
+
 ## 🧱 시스템 설계 및 기술 스택
 
-| 영역       | 기술                                   |
-| -------- | ------------------------------------ |
-| Backend  | Java 21, Spring Boot 3.2             |
-| ORM      | Spring Data JPA + QueryDSL           |
-| 인증       | JWT + Redis + OAuth2                 |
-| Database | MySQL                                |
-| Infra    | AWS EC2, Docker, CloudWatch          |
-| 배포       | GitHub Actions + Docker *(자동 배포 구현)* |
+| 영역       | 기술                                                              |
+| -------- |-----------------------------------------------------------------|
+| Backend  | Java 21, Spring Boot 3.2                                        |
+| ORM      | Spring Data JPA + QueryDSL                                      |
+| 인증       | JWT + Redis + OAuth2                                            |
+| Database | MySQL                                                           |
+| Infra    | AWS EC2, Docker, CloudWatch, Nginx, ALB(HTTPS), Route53(DNS 연결) |
+| 배포       | GitHub Actions + Docker *(자동 배포 구현)*                            |
+
+<br>
+
+### 🔐 HTTPS & 도메인 연결  
+- HTTPS 적용: AWS Application Load Balancer(ALB)를 사용하여 SSL 인증서(ACM)를 연동하고 HTTPS 트래픽을 안전하게 처리했습니다.  
+- 도메인 연결: Route53을 통해 도메인(post-it-service.shop)을 ALB에 매핑하여 안정적인 HTTPS 접속 환경을 구성했습니다.
+
+<br>
 
 ### 🔧 설계 선택 요약
 
@@ -58,6 +73,7 @@
 - **조회수 캐싱 + 일괄 저장 전략**
   - Spring Cache (ConcurrentMapCacheManager) 사용
   - 트래픽 분산을 위해 일정 주기마다 DB에 일괄 업데이트
+  
 - CRUD 구현
 	- 게시글 작성(Create), 조회(Read), 수정(Update), 삭제(Delete) 기능 제공. 
 
@@ -129,17 +145,6 @@
 ```
 .
 ├── assets
-├── build
-│   └── flutter_assets
-│       ├── assets
-│       ├── fonts
-│       ├── packages
-│       │   ├── cupertino_icons
-│       │   │   └── assets
-│       │   └── font_awesome_flutter
-│       │       └── lib
-│       │           └── fonts
-│       └── shaders
 ├── lib
 │   ├── api
 │   ├── controller
@@ -147,8 +152,7 @@
 │   ├── service
 │   ├── view
 │   └── widget
-├── test
-├── web
+└── web
     └── icons
 ```
 
