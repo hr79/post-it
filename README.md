@@ -84,7 +84,7 @@
   - `master` 브랜치에 push 시, GitHub Actions에서 애플리케이션을 빌드하고 Docker 이미지 생성
   - EC2 서버에 SSH 접속 후 기존 컨테이너를 종료하고 새로운 컨테이너를 실행하는 방식으로 재배포 수행
   - 현재는 테스트 단계는 포함되지 않았으며, **무중단 배포는 아님**
-  - `.github/workflows/deploy.yml`에 배포 워크플로우 정의 [보러가기](https://github.com/hr79/post-it/blob/main/.github/workflows/main.yml)
+  - `.github/workflows/deploy.yml`에 배포 워크플로우 정의 [보러가기](.github/workflows/deploy.yml)
    
 > ✅ 추후 개선 방향
 > - 테스트 단계 자동화 (예: `./gradlew test`)
