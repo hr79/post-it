@@ -16,7 +16,7 @@
 
 ## 🧱 Software Architecture
 
-![architecture](https://github.com/user-attachments/assets/be45a92a-8e74-4416-91bc-24d8def4db23)
+![architecture](https://github.com/user-attachments/assets/e2e81cc3-eb57-49af-a7bd-50b6829fee9d)
 
 <br>
 
