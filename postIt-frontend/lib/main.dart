@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:postit_frontend/controller/detail_page_controller.dart';
 import 'package:postit_frontend/controller/main_controller.dart';
 import 'package:postit_frontend/controller/sign_up_controller.dart';
@@ -12,11 +13,12 @@ import 'package:postit_frontend/view/post_write_page.dart';
 import 'package:postit_frontend/view/sign_up_page.dart';
 import 'package:postit_frontend/view/social_login_callback_page.dart';
 
-void main() {
+void main() async {
   final dio = Dio();
 
   final uri = Uri.base;
   print("🌐 Uri.base: ${uri.toString()}");
+  await GetStorage.init();
 
   runApp(MyApp(dio: dio, initialRoute: uri.path)); // myappdp dio 전달
 }

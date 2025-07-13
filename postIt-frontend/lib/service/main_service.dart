@@ -35,6 +35,7 @@ class MainService extends GetxController {
 
   Future<bool> login(String id, String pw) async {
     try {
+      print("로그인 시도");
       var resp = await _dio.post("$basedUrl/login",
           options: Options(contentType: Headers.jsonContentType),
           data: {"username": id, "password": pw});
@@ -58,7 +59,7 @@ class MainService extends GetxController {
     print(value);
 
     storage.write("token", value);
-    print("토큰 저장 완료");
+    print("토큰 저장 완료: ${storage.read("token")}");
   }
 
   void logOut() async {
