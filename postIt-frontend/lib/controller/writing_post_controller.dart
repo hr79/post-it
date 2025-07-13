@@ -6,6 +6,7 @@ import 'package:postit_frontend/api/api_client.dart';
 import 'package:postit_frontend/app_route.dart';
 
 import '../model/post.dart';
+import 'main_controller.dart';
 
 class WritingPostController extends GetxController {
   TextEditingController titleController = TextEditingController();
@@ -27,6 +28,11 @@ class WritingPostController extends GetxController {
         {"title": title, "content": content},
       );
       print("${response.data}");
+
+      // 1. 기존 메인 컨트롤러 제거
+      // 2. 메인 페이지로 이동 → 컨트롤러 새로 생성됨 → onInit()에서 목록 재조회됨
+      Get.delete<MainController>();
+      Get.offAllNamed('/');
     } on DioException catch (e) {
       print(e.message);
       print(e.stackTrace);
