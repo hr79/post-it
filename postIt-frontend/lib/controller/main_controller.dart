@@ -36,6 +36,7 @@ class MainController extends GetxController {
     // 로그인 실패시 로그인 다이얼로그가 꺼지는게 아니라 입력한 값은 그대로 남아있게+ 다시 로그인하라는 알림
     isLoggedIn.value =
         await _mainService.login(idController.text, pwController.text);
+    print("isLoggedIn: $isLoggedIn");
   }
 
   logOut() {
@@ -44,11 +45,17 @@ class MainController extends GetxController {
   }
 
   @override
-  void onInit() async {
+  void onInit() {
     super.onInit();
     print(":::: MainController.onInit");
-    checkLoginStatus();
     getPostlist();
+  }
+
+
+  @override
+  void onReady() {
+    print(":::: MainController.onReady");
+    checkLoginStatus();
   }
 
   getOAuth2Url() async {
@@ -67,15 +74,15 @@ class MainController extends GetxController {
   }
 
   void checkLoginStatus() {
-    String? authToken = _storage.read("token");
-    print("authtoken = $authToken");
+    String? token = _storage.read("token");
+    print("token = $token");
 
-    if (authToken == null) {
+    if (token == null) {
       isLoggedIn.value = false;
 
       return;
     }
-    if (!_isTokenAlive(authToken)) {
+    if (!_isTokenAlive(token)) {
       isLoggedIn.value = false;
       _storage.remove("token");
       print("token deleted!");
