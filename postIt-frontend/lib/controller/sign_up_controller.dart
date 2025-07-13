@@ -15,7 +15,6 @@ class SignUpController extends GetxController {
 
   final _dio = Dio();
   final _apiClient = ApiClient();
-  // final basedUrl = "http://localhost:8080/api";
   final basedUrl = AppRoute.basedUrl;
 
   signUp() async {
@@ -26,13 +25,6 @@ class SignUpController extends GetxController {
       String email = emailController.text;
       String nickname = nicknameController.text;
 
-      // var postReq = await _apiClient.post("$basedUrl/auth/register", {
-      //   "username": username,
-      //   "password": password,
-      //   "confirmPassword": confirmPassword,
-      //   "email": email,
-      //   "nickname": nickname,
-      // });
       var postReq = await _dio.post(
         "$basedUrl/auth/register",
         data: {

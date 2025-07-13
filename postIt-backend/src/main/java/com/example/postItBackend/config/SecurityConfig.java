@@ -52,7 +52,7 @@ public class SecurityConfig {
         GoogleOAuth2Service googleOAuth2Service = new GoogleOAuth2Service(memberRepository, restTemplate, jwtUtil);
 
         http
-                .cors(Customizer.withDefaults())
+                .cors(Customizer.withDefaults()) // cors 허용
                 .csrf(AbstractHttpConfigurer::disable) // 비활성화
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 // 경로병 권한 설정
@@ -97,7 +97,7 @@ public class SecurityConfig {
                 "http://13.209.85.84",
                 "https://post-it-service.shop"
         ));
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         configuration.setAllowCredentials(true); // 쿠키 인증 허용 (필요 시 활성화)
 

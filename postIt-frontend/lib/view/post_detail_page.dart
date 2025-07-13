@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:postit_frontend/controller/detail_page_controller.dart';
-import 'package:postit_frontend/model/post.dart';
+import 'package:postit_frontend/view/post_write_page.dart';
 
 import '../model/comment.dart';
 
@@ -43,6 +43,32 @@ class PostDetailPage extends GetView<DetailPageController> {
                             fontSize: 20, fontWeight: FontWeight.bold)),
                     SizedBox(height: 8),
                     Text(controller.post.value?.content ?? postContent),
+                    if (controller.isAuthor()) ...[
+                      SizedBox(height: 16),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          ElevatedButton(
+                            onPressed: () {
+                              Get.toNamed(
+                                PostWritePage.route,
+                                arguments: controller.post.value, // post 객체 전체 전달
+                              );
+                            },
+                            child: Text('수정'),
+                          ),
+                          SizedBox(width: 8),
+                          ElevatedButton(
+                            onPressed: () {
+                              controller.deletePost();
+                            },
+                            style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.red),
+                            child: Text('삭제'),
+                          ),
+                        ],
+                      ),
+                    ],
                     SizedBox(height: 16),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
