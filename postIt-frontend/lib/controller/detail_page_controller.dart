@@ -9,6 +9,8 @@ import 'package:postit_frontend/app_route.dart';
 import 'package:postit_frontend/model/post.dart';
 
 import '../model/comment.dart';
+import '../view/main_page.dart';
+import 'main_controller.dart';
 
 class DetailPageController extends GetxController {
   final Dio _dio = Dio();
@@ -66,7 +68,29 @@ class DetailPageController extends GetxController {
   }
 
   // 글 삭제
-  deletePost() async {}
+  deletePost() async {
+    print(":::: deletePost");
+    try {
+      String? token = _storage.read("token");
+      if (token == null) {
+        print("token is null");
+        return;
+      }
+      var response = await _dio.delete("$basedUrl/board/${post.value!.id}",
+          options: Options(
+            headers: {"Authorization": "Bearer $token"},
+          ));
+
+      print(response.toString());
+
+      // 1. 기존 메인 컨트롤러 제거
+      Get.delete<MainController>();
+      // 2. 메인 페이지로 이동 → 컨트롤러 새로 생성됨 → onInit()에서 목록 재조회됨
+      Get.offAll(() => MainPage());
+    } catch (e) {
+      print(e);
+    }
+  }
 
   saveComment(int id) async {
     print(":::: saveComment");
