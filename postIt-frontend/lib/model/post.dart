@@ -21,7 +21,8 @@ class Post {
       'title': this.title,
       'content': this.content,
       'viewCount': this.viewCount,
-      'member': this.member,
+      'username': member?.username,
+      'nickname': member?.nickname,
     };
   }
 
@@ -31,10 +32,10 @@ class Post {
       title: map['title'],
       content: map['content'],
       viewCount: map['viewCount'],
-      member: map['member'],
+      member: Member(
+        username: map['username'] as String?,
+        nickname: map['nickname'] as String?,
+      ),
     );
   }
-
-
-//
 }
