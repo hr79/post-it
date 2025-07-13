@@ -10,8 +10,11 @@ import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+
+import org.springframework.cache.caffeine.CaffeineCache;
 
 @Slf4j
 @Component
@@ -39,13 +42,19 @@ public class CacheUtil {
     // 조회수 캐시 조회
     public Map<Long, Integer> getAllViewCountCache() {
         Cache viewCountCache = cacheManager.getCache("viewCount");
+
         if (viewCountCache == null) {
             log.info("view count cache is null");
             return null;
         }
-        Map<Long, Integer> nativeCache = (Map<Long, Integer>) viewCountCache.getNativeCache();
-        log.info("nativeCache: {}", nativeCache);
-        return nativeCache;
+        Map<Long, Integer> resultCache = new HashMap<>();
+
+        if (viewCountCache instanceof CaffeineCache countCache) {
+            countCache.getNativeCache().asMap().forEach((key, value) -> resultCache.put((long) key, (Integer) value));
+        }
+        log.info("resultCache: {}", resultCache);
+
+        return resultCache;
     }
 
     // todo
