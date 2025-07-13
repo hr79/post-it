@@ -71,9 +71,9 @@
 	- Pageable을 활용한 페이징 처리로 성능 최적화
 
 - **조회수 캐싱 + 일괄 저장 전략**
-  - Spring Cache (ConcurrentMapCacheManager) 사용
-  - 트래픽 분산을 위해 일정 주기마다 DB에 일괄 업데이트
-  
+  - 고성능 로컬 캐시 라이브러리인 Caffeine Cache를 Spring Cache와 함께 사용
+  - 실시간 DB 부하를 줄이기 위해 조회수는 캐시에 저장하고, 일정 주기마다 비동기 작업으로 DB에 일괄 반영하여 트래픽을 분산 처리함
+
 - CRUD 구현
 	- 게시글 작성(Create), 조회(Read), 수정(Update), 삭제(Delete) 기능 제공. 
 
