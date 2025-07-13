@@ -8,9 +8,9 @@ import 'package:postit_frontend/controller/social_login_callback_controller.dart
 import 'package:postit_frontend/controller/writing_post_controller.dart';
 import 'package:postit_frontend/view/main_page.dart';
 import 'package:postit_frontend/view/post_detail_page.dart';
+import 'package:postit_frontend/view/post_write_page.dart';
 import 'package:postit_frontend/view/sign_up_page.dart';
 import 'package:postit_frontend/view/social_login_callback_page.dart';
-
 
 void main() {
   final dio = Dio();
@@ -24,6 +24,7 @@ void main() {
 class MyApp extends StatelessWidget {
   final Dio dio;
   final String initialRoute;
+
   const MyApp({super.key, required this.dio, required this.initialRoute});
 
   @override
@@ -48,7 +49,10 @@ class MyApp extends StatelessWidget {
             //     Get.lazyPut<DetailPageController>(() => DetailPageController())),
             ),
         GetPage(name: "/signup", page: () => SignUpPage()),
-        GetPage(name: "/auth/social/callback", page: () => SocialLoginCallbackPage())
+        GetPage(
+            name: "/auth/social/callback",
+            page: () => SocialLoginCallbackPage()),
+        GetPage(name: '/post', page: () => PostWritePage()),
       ],
       // initialRoute: "/",
       initialBinding: BindingsBuilder(() {
@@ -62,4 +66,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:postit_frontend/controller/writing_post_controller.dart';
 
+import '../model/post.dart';
+
 class PostWritePage extends GetView<WritingPostController> {
   const PostWritePage({super.key});
 
@@ -9,10 +11,19 @@ class PostWritePage extends GetView<WritingPostController> {
 
   @override
   Widget build(BuildContext context) {
+    final post = Get.arguments; // 전달된 Post 객체
+
+    if (post != null && post is Post) {
+      // 수정 모드 - 초기값 세팅
+      controller.titleController.text = post.title!;
+      controller.contentController.text = post.content!;
+      var postId = post.id; // id도 저장해서 수정요청 시 사용
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          "Start post",
+          post != null ? "게시글 수정" : "새 글 작성",
           style: TextStyle(color: Colors.black),
         ),
         centerTitle: true,
@@ -29,7 +40,11 @@ class PostWritePage extends GetView<WritingPostController> {
             onPressed: () {
               print(controller.titleController.text);
               print(controller.contentController.text);
-              controller.savePost();
+              if (post != null) {
+                controller.editPost(post); // 수정 요청
+              } else {
+                controller.savePost(); // 새 글 작성
+              }
               Navigator.of(context).pop();
             },
             child: Text(
