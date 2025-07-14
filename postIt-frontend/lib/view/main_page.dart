@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:postit_frontend/controller/main_controller.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart'; // Font Awesome 아이콘 사용
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:postit_frontend/view/post_write_page.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
@@ -104,14 +104,25 @@ class MainPage extends GetView<MainController> {
           () => controller.postList.isEmpty
               ? Text("No Post")
               : ListView.builder(
+                  controller: controller.scrollController,
                   // Column -> ListView로 변경하여 스크롤 가능하게 함
-                  itemCount: controller.postList.length,
+                  itemCount: controller.postList.length +
+                      (controller.hasMore.value ? 1 : 0),
                   itemBuilder: (BuildContext context, int index) {
-                    var post = controller.postList[index];
-                    return BulletinItem(
-                        title: post.title!,
-                        viewCount: post.viewCount!,
-                        post: post);
+                    if (index < controller.postList.length) {
+                      var post = controller.postList[index];
+                      return BulletinItem(
+                          title: post.title!,
+                          viewCount: post.viewCount!,
+                          post: post);
+                    } else {
+                      return const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 16.0),
+                        child: Center(
+                          child: Text("마지막 글입니다."),
+                        ),
+                      );
+                    }
                   },
                 ),
         ),

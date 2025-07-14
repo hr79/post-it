@@ -15,6 +15,12 @@ class MainController extends GetxController {
   RxBool isLoggedIn = false.obs; // 로그인 한 상태인지
   final _storage = GetStorage();
 
+  // 무한스크롤
+  final ScrollController scrollController = ScrollController();
+  var isLoading = false.obs;
+  var hasMore = true.obs;
+  int page = 0; // 현재 페이지
+
   getPostlist() async {
     List<Post>? pagingPost = await _mainService.getPagingPost(pageNum.value);
     postList.addAll(pagingPost!);
@@ -39,6 +45,7 @@ class MainController extends GetxController {
     print("isLoggedIn: $isLoggedIn");
   }
 
+  // 로그아웃
   logOut() {
     _mainService.logOut();
     isLoggedIn.value = false;
@@ -48,9 +55,18 @@ class MainController extends GetxController {
   void onInit() {
     super.onInit();
     print(":::: MainController.onInit");
-    getPostlist();
-  }
+    // getPostlist();
+    fetchInitialPosts();
 
+    scrollController.addListener(() {
+      if (scrollController.position.pixels >=
+              scrollController.position.maxScrollExtent - 200 &&
+          !isLoading.value &&
+          hasMore.value) {
+        fetchMorePosts();
+      }
+    });
+  }
 
   @override
   void onReady() {
@@ -58,6 +74,7 @@ class MainController extends GetxController {
     checkLoginStatus();
   }
 
+  // 구글 로그인
   getOAuth2Url() async {
     String? googleClientUrl = await _mainService.getOAuth2Url();
     print("googleClientUrl: $googleClientUrl");
@@ -109,6 +126,34 @@ class MainController extends GetxController {
     } else {
       print("Token is alive");
       return true;
+    }
+  }
+
+  // 무한스크롤 : 리스트 및 페이지 num 초기화
+  void fetchInitialPosts() async {
+    page = 0;
+    postList.clear();
+    hasMore.value = true;
+    await fetchMorePosts();
+  }
+
+  Future<void> fetchMorePosts() async {
+    isLoading.value = true;
+    try {
+      // 예시: 10개씩 가져오는 API
+      final List<Post>? newPosts = await _mainService.fetchPostsFromBackend(page, 10);
+
+      if (newPosts!.length < 10) {
+        hasMore.value = false;
+      }
+      postList.addAll(newPosts);
+      page++;
+      print("page++ = $page");
+    } catch (e) {
+      print(e);
+      // 에러 처리
+    } finally {
+      isLoading.value = false;
     }
   }
 }

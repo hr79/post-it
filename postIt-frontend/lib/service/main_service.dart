@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:postit_frontend/app_route.dart';
@@ -74,6 +75,31 @@ class MainService extends GetxController {
       var res = await _dio.get("$basedUrl/auth/oauth2-login?login_type=google");
       print(res.data);
       return res.data;
+    } on DioException catch (e) {
+      print(e.message);
+    }
+    return null;
+  }
+
+  Future<List<Post>?> fetchPostsFromBackend(int pageNum, int pageSize) async {
+    if (kDebugMode) {
+      print(":::::: TalkService.fetchPostsFromBackend");
+      print("pageNum = $pageNum");
+    }
+    try {
+      var res = await _dio.get("$basedUrl/board?page=$pageNum");
+
+      print("res : ${res.data.toString()}");
+      // print(res.data["success"]);
+      // print(res.data["status"]);
+      // print(res.data["message"]);
+      // print(res.data["data"]);
+      // print(res.data["data"]);
+
+      var mapList = List<Map<String, dynamic>>.from(res.data["data"]);
+      List<Post> postList = mapList.map((p) => Post.fromMap(p)).toList();
+
+      return postList;
     } on DioException catch (e) {
       print(e.message);
     }
