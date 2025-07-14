@@ -23,7 +23,7 @@ public class PostController {
 
     @GetMapping
     public ResponseEntity<?> getAll(@RequestParam(required = false, value = "page") int pageNo) {
-        PageRequest pageRequest = PageRequest.of(pageNo, 10, Sort.by(Sort.Direction.DESC,"id"));
+        PageRequest pageRequest = PageRequest.of(pageNo, 20, Sort.by(Sort.Direction.DESC,"id"));
         List<PostResponseDto> responseDtoList = postService.getAllPosts(pageRequest);
 
         return ResponseEntity.ok().body(ApiResponse.success(responseDtoList, HttpStatus.OK.value(), "글 목록 가져오기 성공"));
