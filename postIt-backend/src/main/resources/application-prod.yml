@@ -1,7 +1,7 @@
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://prod-mysql:3306/postit_db?autoReconnect=true&useSSL=false&connectTimeout=30000
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/${MYSQL_DB:postit_db}?autoReconnect=true&useSSL=false&connectTimeout=30000
     username: ${MYSQL_USERNAME}
     password: ${MYSQL_PASSWORD}
 
@@ -19,7 +19,7 @@ spring:
 
   data:
     redis:
-      host: ${REDIS_HOST:post-it-redis}
+      host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
       password:
 
