@@ -1,15 +1,15 @@
 name: CI/CD Workflow
 
 on:
-#   push:
-#     branches:
-#       - master
+  push:
+    branches:
+      - master
   pull_request:
     branches:
       - master
     paths-ignore:
       - 'README.md'
-      - '.github/**'
+      # - '.github/**'
       - 'docs/**'
 
 jobs:
