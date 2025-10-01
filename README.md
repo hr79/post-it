@@ -16,8 +16,43 @@
 
 ## 🧱 Software Architecture
 
-![architecture](https://github.com/user-attachments/assets/e2e81cc3-eb57-49af-a7bd-50b6829fee9d)
+![architecture](https://github.com/user-attachments/assets/42cfd175-18c7-4b9f-9520-01e36704e45b)
 
+```text
+[Internet]
+    |
+    v
+[DNS: Route53]
+    |
+    v
+[nginx container - HTTPS(443)/HTTP(80)]
+    - Let's Encrypt 인증서로 TLS 종료
+    - Reverse Proxy 역할
+    |-------------------------------|
+    |                               |
+    v                               v
+[flutter container]             [springboot container]
+- 정적 리소스 서빙              - REST API (port 8080)
+                                - 내부 통신만 허용
+
+[Host OS Services]
+    |
+    +-- MySQL (네이티브 설치)
+    |   - SG restricted (내부 접근만 허용)
+    |
+    +-- Redis (네이티브 설치)
+        - protected-mode no
+        - AUTH 미적용 (보안취약, 개선 필요)
+
+[EC2 Host 보안]
+    - Security Groups: 80/443만 외부 허용
+
+[CI/CD: GitHub Actions]
+    - build & push → DockerHub
+    - EC2에서 pull 후 docker-compose up
+    - Basic smoke test (health-check API, static 파일 확인)
+
+```
 <br>
 
 ## 🔗 ERD
