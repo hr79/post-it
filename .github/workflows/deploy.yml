@@ -127,6 +127,27 @@ jobs:
           
           sudo docker compose -f docker-compose.prod.yml up --build --detach
 
+    # ---- 추가된 Smoke Test 단계 ----
+    - name: Smoke test - API health
+      run: |
+        for i in {1..10}; do
+          curl -fsS https://post-it-service.shop/health && exit 0
+          echo "API not ready yet... retrying"
+          sleep 5
+        done
+        echo "API health check failed"
+        exit 1
+
+    - name: Smoke test - Flutter static file
+      run: |
+        for i in {1..10}; do
+          curl -fsS https://post-it-service.shop/index.html && exit 0
+          echo "Frontend not ready yet... retrying"
+          sleep 5
+        done
+        echo "Flutter static file check failed"
+        exit 1
+
     - name: Mark workflow successful
       run: |
         echo "::set-output name=success::true"
