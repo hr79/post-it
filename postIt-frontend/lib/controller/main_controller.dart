@@ -60,7 +60,7 @@ class MainController extends GetxController {
 
     scrollController.addListener(() {
       if (scrollController.position.pixels >=
-              scrollController.position.maxScrollExtent - 200 &&
+              scrollController.position.maxScrollExtent - 200 && // 맨끝에서 200px 남았을때
           !isLoading.value &&
           hasMore.value) {
         fetchMorePosts();
@@ -140,8 +140,7 @@ class MainController extends GetxController {
   Future<void> fetchMorePosts() async {
     isLoading.value = true;
     try {
-      // 예시: 10개씩 가져오는 API
-      final List<Post>? newPosts = await _mainService.fetchPostsFromBackend(page, 10);
+      final List<Post>? newPosts = await _mainService.fetchPostsFromBackend(page, 20);
 
       if (newPosts!.length < 10) {
         hasMore.value = false;
