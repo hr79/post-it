@@ -6,14 +6,14 @@ on:
       - master
     paths-ignore:
       - 'README.md'
-      - '.github/**'
+#      - '.github/**'
       - 'docs/**'
   pull_request:
     branches:
       - master
     paths-ignore:
       - 'README.md'
-      - '.github/**'
+#      - '.github/**'
       - 'docs/**'
 
 jobs:
@@ -32,18 +32,33 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
+    - name: Cache Gradle
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: gradle-
+
+    - name: Cache Flutter
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.pub-cache
+          build/
+        key: flutter-${{ hashFiles('**/pubspec.lock') }}
+        restore-keys: flutter-
+
     - name: Clear Docker cache
       run: docker builder prune --all --force
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
 
-    # - name: Login to Docker Hub
-    #   # env:
-    #     # DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-    #     # DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-    #   run: |
-    #     docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
+    - name: Login to Docker Hub
+      run: |
+         docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
 
     - name: Log in to Docker Hub
       uses: docker/login-action@v2
@@ -73,19 +88,17 @@ jobs:
       env:
         IMAGE_NAME: springboot-web
         IMAGE_TAG: latest
-        # DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       run: |
         docker build -t $DOCKER_USERNAME/$IMAGE_NAME:$IMAGE_TAG ./postIt-backend --push
-    #   run: |
-    #     docker buildx build --no-cache --platform linux/amd64,linux/arm64 -t $DOCKER_REGISTRY_URL/springboot-web:latest ./postIt-backend --push
 
+    # frontend
     - name: Set up Flutter
       uses: subosito/flutter-action@v2
       with:
         channel: stable
         # flutter-version: 3.19.0
     - run: flutter --version
-          
+
     - name: Build Flutter Web
       working-directory: ./postIt-frontend
       run: flutter build web
@@ -96,8 +109,6 @@ jobs:
         IMAGE_TAG: latest
       run: |
         docker build -t $DOCKER_USERNAME/$IMAGE_NAME:$IMAGE_TAG ./postIt-frontend --push
-    #   run: |
-    #     docker buildx build --no-cache --platform linux/amd64,linux/arm64 -t $DOCKER_REGISTRY_URL/flutter-web:latest ./postIt-frontend --push
 
     - name: Deploy to EC2
       uses: appleboy/ssh-action@v0.1.8
@@ -105,8 +116,6 @@ jobs:
         host: ${{ secrets.PROD_EC2_HOST }}
         username: ${{ secrets.PROD_EC2_USER }}
         key: ${{ secrets.PROD_EC2_PRIVATE_KEY }}
-        # envs:
-          # DOCKER_USERNAME: ${{ secrets.PROD_DOCKER_USERNAME }}
         script: |
           export DOCKER_USERNAME="${{ secrets.PROD_DOCKER_USERNAME }}"
           
@@ -117,7 +126,7 @@ jobs:
 
           sudo docker rmi $DOCKER_USERNAME/springboot-web
           sudo docker rmi $DOCKER_USERNAME/flutter-web
-          
+
           # Pull the latest images
           
           sudo docker pull $DOCKER_USERNAME/springboot-web:latest
@@ -126,6 +135,27 @@ jobs:
           # Restart the containers using docker-compose
           
           sudo docker compose -f docker-compose.prod.yml up --build --detach
+
+    # ---- 추가된 Smoke Test 단계 ----
+    - name: Smoke test - API health
+      run: |
+        for i in {1..10}; do
+          curl -fsS https://post-it-service.shop/api/actuator/health && exit 0
+          echo "API not ready yet... retrying"
+          sleep 5
+        done
+        echo "API health check failed"
+        exit 1
+
+    - name: Smoke test - Flutter static file
+      run: |
+        for i in {1..10}; do
+          curl -fsS https://post-it-service.shop/index.html && exit 0
+          echo "Frontend not ready yet... retrying"
+          sleep 5
+        done
+        echo "Flutter static file check failed"
+        exit 1
 
     - name: Mark workflow successful
       run: |

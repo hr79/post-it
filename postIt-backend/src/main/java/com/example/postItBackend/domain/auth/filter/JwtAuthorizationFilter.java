@@ -33,10 +33,10 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     private final static Map<HttpMethod, Set<String>> whiteList = Map.of(
             HttpMethod.GET, Set.of(
                     "/", "/api/", "/api/auth/register**", "/api/login", "/api/board*", "/api/comment",
-                    "/api/auth/oauth2-login*", "/api/auth/oauth2/callback", "/api/favicon.ico", "/favicon.ico"),
+                    "/api/auth/oauth2-login*", "/api/auth/oauth2/callback", "/api/actuator/health", "/api/actuator/info", "/api/favicon.ico", "/favicon.ico"),
             HttpMethod.POST, Set.of(
                     "/api/auth/register*", "/api/login", "/api/auth/reissue", "/api/auth/oauth2-login*",
-                    "/api/auth/oauth2/callback", "/api/favicon.ico", "/favicon.ico"
+                    "/api/auth/oauth2/callback", "/api/actuator/health", "/api/actuator/info", "/api/favicon.ico", "/favicon.ico"
             ),
             HttpMethod.PATCH, Set.of(),
             HttpMethod.DELETE, Set.of(),
