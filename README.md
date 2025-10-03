@@ -42,7 +42,7 @@
     |
     +-- Redis (네이티브 설치)
         - protected-mode no
-        - AUTH 미적용 (보안취약, 개선 필요)
+        - AUTH 미적용 (개선 필요)
 
 [EC2 Host 보안]
     - Security Groups: 80/443만 외부 허용
@@ -65,20 +65,20 @@
 
 ## 🧱 시스템 설계 및 기술 스택
 
-| 영역       | 기술                                                              |
-| -------- |-----------------------------------------------------------------|
-| Backend  | Java 21, Spring Boot 3.2                                        |
-| ORM      | Spring Data JPA + QueryDSL                                      |
-| 인증       | JWT + Redis + OAuth2                                            |
-| Database | MySQL                                                           |
-| Infra    | AWS EC2, Docker, CloudWatch, Nginx, ALB(HTTPS), Route53(DNS 연결) |
-| 배포       | GitHub Actions + Docker *(자동 배포 구현)*                            |
+| 영역       | 기술                                                                        |
+|----------|---------------------------------------------------------------------------|
+| Backend  | Java 21, Spring Boot 3.2                                                  |
+| ORM      | Spring Data JPA + QueryDSL                                                |
+| 인증       | JWT + Redis + OAuth2                                                      |
+| Database | MySQL                                                                     |
+| Infra    | AWS EC2, Docker, Nginx, Let's Encrypt(HTTPS), Route53(DNS 연결), CloudWatch |
+| 배포       | GitHub Actions + Docker *(자동 배포 구현)*                                      |
 
 <br>
 
 ### 🔐 HTTPS & 도메인 연결  
-- HTTPS 적용: AWS Application Load Balancer(ALB)를 사용하여 SSL 인증서(ACM)를 연동하고 HTTPS 트래픽을 안전하게 처리했습니다.  
-- 도메인 연결: Route53을 통해 도메인(post-it-service.shop)을 ALB에 매핑하여 안정적인 HTTPS 접속 환경을 구성했습니다.
+- HTTPS 적용: Nginx를 사용하여 SSL 인증서(Let's Encrypt)를 연동하여 HTTPS 트래픽을 안전하게 처리했습니다.  
+- 도메인 연결: AWS Route53을 통해 도메인(post-it-service.shop)을 EC2 인스턴스에 매핑하고, Nginx 리버스 프록시 설정을 통해 Spring Boot API와 Flutter 정적 리소스에 안정적으로 접근할 수 있도록 구성했습니다.
 
 <br>
 
