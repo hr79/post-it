@@ -64,6 +64,7 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.POST, "/api/auth/reissue").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/api/auth/oauth2-login").permitAll()
                                 .requestMatchers("/api/auth/oauth2/callback").permitAll()
+                                .requestMatchers("/api/actuator/**").permitAll()
                                 .requestMatchers("/favicon.ico").permitAll()
 //                        .requestMatchers(HttpMethod.GET, "**/*.ico").permitAll()
                                 .requestMatchers(HttpMethod.GET, "/board*").permitAll()
