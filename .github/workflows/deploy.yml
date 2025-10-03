@@ -97,25 +97,24 @@ jobs:
     #   run: |
     #     docker buildx build --no-cache --platform linux/amd64,linux/arm64 -t $DOCKER_REGISTRY_URL/springboot-web:latest ./postIt-backend --push
 
-    - name: Set up Flutter
-      uses: subosito/flutter-action@v2
-      with:
-        channel: stable
-        # flutter-version: 3.19.0
-    - run: flutter --version
-          
-    - name: Build Flutter Web
-      working-directory: ./postIt-frontend
-      run: flutter build web
-
-    - name: Build and push frontend Docker image
-      env:
-        IMAGE_NAME: flutter-web
-        IMAGE_TAG: latest
-      run: |
-        docker build -t $DOCKER_USERNAME/$IMAGE_NAME:$IMAGE_TAG ./postIt-frontend --push
-    #   run: |
-    #     docker buildx build --no-cache --platform linux/amd64,linux/arm64 -t $DOCKER_REGISTRY_URL/flutter-web:latest ./postIt-frontend --push
+    # frontend
+#    - name: Set up Flutter
+#      uses: subosito/flutter-action@v2
+#      with:
+#        channel: stable
+#        # flutter-version: 3.19.0
+#    - run: flutter --version
+#
+#    - name: Build Flutter Web
+#      working-directory: ./postIt-frontend
+#      run: flutter build web
+#
+#    - name: Build and push frontend Docker image
+#      env:
+#        IMAGE_NAME: flutter-web
+#        IMAGE_TAG: latest
+#      run: |
+#        docker build -t $DOCKER_USERNAME/$IMAGE_NAME:$IMAGE_TAG ./postIt-frontend --push
 
     - name: Deploy to EC2
       uses: appleboy/ssh-action@v0.1.8
@@ -134,12 +133,12 @@ jobs:
           # Remove previous version images
 
           sudo docker rmi $DOCKER_USERNAME/springboot-web
-          sudo docker rmi $DOCKER_USERNAME/flutter-web
-          
+#          sudo docker rmi $DOCKER_USERNAME/flutter-web
+
           # Pull the latest images
           
           sudo docker pull $DOCKER_USERNAME/springboot-web:latest
-          sudo docker pull $DOCKER_USERNAME/flutter-web:latest
+#          sudo docker pull $DOCKER_USERNAME/flutter-web:latest
 
           # Restart the containers using docker-compose
           
@@ -149,7 +148,7 @@ jobs:
     - name: Smoke test - API health
       run: |
         for i in {1..10}; do
-          curl -fsS https://post-it-service.shop/actuator/health && exit 0
+          curl -fsS https://post-it-service.shop/api/actuator/health && exit 0
           echo "API not ready yet... retrying"
           sleep 5
         done
