@@ -1,3 +1,4 @@
+import 'package:postit_frontend/widget/default_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:postit_frontend/controller/writing_post_controller.dart';
@@ -26,22 +27,8 @@ class PostWritePage extends GetView<WritingPostController> {
           backgroundColor: mainController.isDarkMode.value
               ? const Color(0xFF121212)
               : Colors.white,
-          appBar: AppBar(
-            title: Text(
-              post != null ? "게시글 수정" : "새 글 작성",
-              style: TextStyle(
-                color: mainController.isDarkMode.value
-                    ? Colors.white
-                    : const Color(0xFF0e171b),
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-              ),
-            ),
-            centerTitle: true,
-            backgroundColor: mainController.isDarkMode.value
-                ? const Color(0xFF1E1E1E)
-                : Colors.white,
-            elevation: 0,
+          appBar: defaultAppBar(
+            isDarkMode: mainController.isDarkMode.value,
             leading: IconButton(
               icon: Icon(
                 Icons.close,
@@ -53,19 +40,27 @@ class PostWritePage extends GetView<WritingPostController> {
                 Get.back();
               },
             ),
+            title: Text(
+              post != null ? "게시글 수정" : "새 글 작성",
+              style: TextStyle(
+                color: mainController.isDarkMode.value
+                    ? Colors.white
+                    : const Color(0xFF0e171b),
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
+            ),
             actions: [
               TextButton(
                 onPressed: () {
-                  print(controller.titleController.text);
-                  print(controller.contentController.text);
                   if (post != null) {
-                    controller.editPost(post); // 수정 요청
+                    controller.editPost(post);
                   } else {
-                    controller.savePost(); // 새 글 작성
+                    controller.savePost();
                   }
                   Navigator.of(context).pop();
                 },
-                child: Text(
+                child: const Text(
                   "Post",
                   style: TextStyle(color: Colors.blue),
                 ),

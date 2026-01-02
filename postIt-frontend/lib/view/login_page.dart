@@ -4,6 +4,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:postit_frontend/controller/main_controller.dart';
 import 'package:postit_frontend/widget/oauth_login_button.dart';
 import 'package:postit_frontend/widget/auth_text_field.dart';
+import 'package:postit_frontend/widget/default_appbar.dart';
 
 class LoginPage extends GetView<MainController> {
   const LoginPage({super.key});
@@ -17,11 +18,8 @@ class LoginPage extends GetView<MainController> {
           backgroundColor: controller.isDarkMode.value
               ? const Color(0xFF121212)
               : Colors.white,
-          appBar: AppBar(
-            backgroundColor: controller.isDarkMode.value
-                ? const Color(0xFF1E1E1E)
-                : Colors.white,
-            elevation: 0,
+          appBar: defaultAppBar(
+            isDarkMode: controller.isDarkMode.value,
             leading: IconButton(
               icon: Icon(
                 Icons.arrow_back,
@@ -41,7 +39,6 @@ class LoginPage extends GetView<MainController> {
                 fontSize: 18,
               ),
             ),
-            centerTitle: true,
           ),
           body: Center(
             child: SingleChildScrollView(

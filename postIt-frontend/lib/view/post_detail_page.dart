@@ -1,3 +1,4 @@
+import 'package:postit_frontend/widget/default_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:postit_frontend/controller/detail_page_controller.dart';
@@ -20,11 +21,8 @@ class PostDetailPage extends GetView<DetailPageController> {
           backgroundColor: mainController.isDarkMode.value
               ? const Color(0xFF121212)
               : Colors.white,
-          appBar: AppBar(
-            backgroundColor: mainController.isDarkMode.value
-                ? const Color(0xFF1E1E1E)
-                : Colors.white,
-            elevation: 0,
+          appBar: defaultAppBar(
+            isDarkMode: mainController.isDarkMode.value,
             leading: IconButton(
               icon: Icon(
                 Icons.arrow_back,
@@ -44,7 +42,6 @@ class PostDetailPage extends GetView<DetailPageController> {
                 fontSize: 18,
               ),
             ),
-            centerTitle: true,
           ),
           body: LayoutBuilder(
             builder: (context, constraints) {

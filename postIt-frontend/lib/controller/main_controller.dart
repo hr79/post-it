@@ -29,22 +29,23 @@ class MainController extends GetxController {
 
   getPostlist() async {
     // List<Post>? pagingPost = await _mainService.getPagingPost(pageNum.value);
-    for (int i = 0; i < 20; i++) {
+    if (postList.isEmpty) {
       List<Post> tempPostList = [];
-      tempPostList.add(Post(
-          id: i,
-          title: "title $i",
-          content:
-              "content $i This is a longer content that should be truncated with ellipsis if it's too long to fit in one line.",
-          viewCount: 0,
-          commentCount: i % 5,
-          member: null));
-      if (postList.isEmpty) {
-        postList.addAll(tempPostList);
+      for (int i = 0; i < 20; i++) {
+        tempPostList.add(Post(
+            id: i,
+            title: "title $i",
+            content:
+                "content $i This is a longer content that should be truncated with ellipsis if it's too long to fit in one line.",
+            viewCount: 0,
+            commentCount: i % 5,
+            member: null));
       }
-      print("postList = ");
-      print(postList);
+
+      postList.addAll(tempPostList);
     }
+    print("postList = ");
+    print(postList);
     // postList.addAll(pagingPost!);
     pageNum.value++;
   }

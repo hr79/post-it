@@ -1,3 +1,4 @@
+import 'package:postit_frontend/widget/default_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:postit_frontend/view/post_write_page.dart';
@@ -14,11 +15,8 @@ class MainPage extends GetView<MainController> {
           backgroundColor: controller.isDarkMode.value
               ? const Color(0xFF121212)
               : Colors.white,
-          appBar: AppBar(
-            backgroundColor: controller.isDarkMode.value
-                ? const Color(0xFF1E1E1E)
-                : Colors.white,
-            elevation: 0,
+          appBar: defaultAppBar(
+            isDarkMode: controller.isDarkMode.value,
             centerTitle: true,
             title: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -64,9 +62,7 @@ class MainPage extends GetView<MainController> {
                       ? Colors.white
                       : const Color(0xFF0e171b),
                 ),
-                onPressed: () {
-                  // 검색 기능
-                },
+                onPressed: () {},
               ),
               Padding(
                 padding: const EdgeInsets.only(right: 16.0),

@@ -1,3 +1,4 @@
+import 'package:postit_frontend/widget/default_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:postit_frontend/controller/sign_up_controller.dart';
@@ -14,7 +15,8 @@ class SignUpPage extends GetView<SignUpController> {
           backgroundColor: mainController.isDarkMode.value
               ? const Color(0xFF121212)
               : Colors.white,
-          appBar: AppBar(
+          appBar: defaultAppBar(
+            isDarkMode: mainController.isDarkMode.value,
             title: Text(
               'Sign Up',
               style: TextStyle(
@@ -25,10 +27,6 @@ class SignUpPage extends GetView<SignUpController> {
                 fontSize: 18,
               ),
             ),
-            backgroundColor: mainController.isDarkMode.value
-                ? const Color(0xFF1E1E1E)
-                : Colors.white,
-            elevation: 0,
           ),
           body: Center(
             child: SingleChildScrollView(
