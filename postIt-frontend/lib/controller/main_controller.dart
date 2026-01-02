@@ -10,10 +10,16 @@ class MainController extends GetxController {
   final MainService _mainService = MainService();
   TextEditingController idController = TextEditingController(text: "username1");
   TextEditingController pwController = TextEditingController(text: "1234");
+  // RxList<Post> postList = <Post>[].obs;
   RxList<Post> postList = <Post>[].obs;
   RxInt pageNum = 0.obs;
   RxBool isLoggedIn = false.obs; // 로그인 한 상태인지
   final _storage = GetStorage();
+  final isDarkMode = false.obs;
+
+  void toggleTheme() {
+    isDarkMode.value = !isDarkMode.value;
+  }
 
   // 무한스크롤
   final ScrollController scrollController = ScrollController();
@@ -22,8 +28,25 @@ class MainController extends GetxController {
   int page = 0; // 현재 페이지
 
   getPostlist() async {
-    List<Post>? pagingPost = await _mainService.getPagingPost(pageNum.value);
-    postList.addAll(pagingPost!);
+    // List<Post>? pagingPost = await _mainService.getPagingPost(pageNum.value);
+    if (postList.isEmpty) {
+      List<Post> tempPostList = [];
+      for (int i = 0; i < 20; i++) {
+        tempPostList.add(Post(
+            id: i,
+            title: "title $i",
+            content:
+                "content $i This is a longer content that should be truncated with ellipsis if it's too long to fit in one line.",
+            viewCount: 0,
+            commentCount: i % 5,
+            member: null));
+      }
+
+      postList.addAll(tempPostList);
+    }
+    print("postList = ");
+    print(postList);
+    // postList.addAll(pagingPost!);
     pageNum.value++;
   }
 
@@ -55,17 +78,28 @@ class MainController extends GetxController {
   void onInit() {
     super.onInit();
     print(":::: MainController.onInit");
-    // getPostlist();
-    fetchInitialPosts();
-
-    scrollController.addListener(() {
-      if (scrollController.position.pixels >=
-              scrollController.position.maxScrollExtent - 200 &&
-          !isLoading.value &&
-          hasMore.value) {
-        fetchMorePosts();
-      }
+    // 저장된 테마 설정 불러오기
+    final savedTheme = _storage.read('isDarkMode');
+    if (savedTheme != null) {
+      isDarkMode.value = savedTheme;
+    }
+    // 테마 변경 리스너 추가
+    ever(isDarkMode, (bool value) {
+      _storage.write('isDarkMode', value);
+      update(); // GetBuilder 업데이트
     });
+    //todo 배포할때 주석해제
+    getPostlist();
+    // fetchInitialPosts();
+    //
+    // scrollController.addListener(() {
+    //   if (scrollController.position.pixels >=
+    //           scrollController.position.maxScrollExtent - 200 &&
+    //       !isLoading.value &&
+    //       hasMore.value) {
+    //     fetchMorePosts();
+    //   }
+    // });
   }
 
   @override
@@ -138,10 +172,12 @@ class MainController extends GetxController {
   }
 
   Future<void> fetchMorePosts() async {
+    print("::::fetchMorePosts - page: $page");
     isLoading.value = true;
     try {
       // 예시: 10개씩 가져오는 API
-      final List<Post>? newPosts = await _mainService.fetchPostsFromBackend(page, 10);
+      final List<Post>? newPosts =
+          await _mainService.fetchPostsFromBackend(page, 10);
 
       if (newPosts!.length < 10) {
         hasMore.value = false;

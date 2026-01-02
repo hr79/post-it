@@ -12,7 +12,7 @@ class MainService extends GetxController {
   final String basedUrl = AppRoute.basedUrl; // local
 
   Future<List<Post>?> getPagingPost(int pageNum) async {
-    print("==== TalkService.getPagingPost");
+    print("==== MainService.getPagingPost");
     print("pageNum = $pageNum");
     try {
       var res = await _dio.get("$basedUrl/board?page=$pageNum");
@@ -83,7 +83,7 @@ class MainService extends GetxController {
 
   Future<List<Post>?> fetchPostsFromBackend(int pageNum, int pageSize) async {
     if (kDebugMode) {
-      print(":::::: TalkService.fetchPostsFromBackend");
+      print(":::::: MainService.fetchPostsFromBackend");
       print("pageNum = $pageNum");
     }
     try {

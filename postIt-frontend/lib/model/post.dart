@@ -5,6 +5,7 @@ class Post {
   String? title;
   String? content;
   int? viewCount;
+  int? commentCount;
   Member? member;
 
   Post({
@@ -12,6 +13,7 @@ class Post {
     required this.title,
     required this.content,
     required this.viewCount,
+    this.commentCount,
     required this.member,
   });
 
@@ -21,6 +23,7 @@ class Post {
       'title': this.title,
       'content': this.content,
       'viewCount': this.viewCount,
+      'commentCount': this.commentCount,
       'username': member?.username,
       'nickname': member?.nickname,
     };
@@ -32,6 +35,7 @@ class Post {
       title: map['title'],
       content: map['content'],
       viewCount: map['viewCount'],
+      commentCount: map['commentCount'],
       member: Member(
         username: map['username'] as String?,
         nickname: map['nickname'] as String?,
