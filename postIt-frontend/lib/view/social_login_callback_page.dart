@@ -53,7 +53,15 @@ class SocialLoginCallbackPage extends GetView<SocialLoginCallbackController> {
     });
 
     return Scaffold(
-      body: Center(child: Text('로그인 처리 중...')),
+      backgroundColor: Colors.white,
+      body: Center(
+        child: Text(
+          '로그인 처리 중...',
+          style: const TextStyle(
+            color: Color(0xFF0e171b),
+          ),
+        ),
+      ),
     );
   }
 }

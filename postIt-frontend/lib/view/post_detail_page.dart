@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:postit_frontend/controller/detail_page_controller.dart';
-import 'package:postit_frontend/view/post_write_page.dart';
-
-import '../model/comment.dart';
+import 'package:postit_frontend/controller/main_controller.dart';
 
 class PostDetailPage extends GetView<DetailPageController> {
   const PostDetailPage({super.key, required this.postId});
@@ -17,136 +15,177 @@ class PostDetailPage extends GetView<DetailPageController> {
 
   @override
   Widget build(BuildContext context) {
-    int intPostId = int.parse(postId);
-    controller.getDetailPost(intPostId);
-    return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-        title: Text("Post Detail"),
-        backgroundColor: Colors.white,
-      ),
-      body: Obx(
-        () => controller.post.value == null
-            ? LinearProgressIndicator()
-            : SingleChildScrollView(
-                padding: EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text(controller.post.value?.title ?? "no title",
-                        style: TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.bold)),
-                    SizedBox(height: 8),
-                    Text(controller.post.value?.content ?? postContent),
-                    if (controller.isAuthor()) ...[
-                      SizedBox(height: 16),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          ElevatedButton(
-                            onPressed: () {
-                              Get.toNamed(
-                                PostWritePage.route,
-                                arguments: controller.post.value, // post 객체 전체 전달
-                              );
-                            },
-                            child: Text('수정'),
-                          ),
-                          SizedBox(width: 8),
-                          ElevatedButton(
-                            onPressed: () {
-                              controller.deletePost();
-                            },
-                            style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.red),
-                            child: Text('삭제'),
-                          ),
-                        ],
-                      ),
-                    ],
-                    SizedBox(height: 16),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: <Widget>[
-                        Row(children: [Icon(Icons.thumb_up), Text("12")]),
-                        Row(children: [Icon(Icons.comment), Text("4")]),
-                        Row(children: [Icon(Icons.share), Text("2")]),
-                      ],
-                    ),
-                    Divider(),
-                    ListView.builder(
-                      shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
-                      // ListView 내부 스크롤 방지
-                      itemCount: controller.comments.length,
-                      itemBuilder: (context, index) {
-                        var comment = controller.comments[index];
-                        return CommentWidget(comment: comment);
-                      },
-                    ),
-                    SizedBox(height: 16),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
+    final mainController = Get.find<MainController>();
+    return Obx(() => Scaffold(
+          backgroundColor: mainController.isDarkMode.value
+              ? const Color(0xFF121212)
+              : Colors.white,
+          appBar: AppBar(
+            backgroundColor: mainController.isDarkMode.value
+                ? const Color(0xFF1E1E1E)
+                : Colors.white,
+            elevation: 0,
+            leading: IconButton(
+              icon: Icon(
+                Icons.arrow_back,
+                color: mainController.isDarkMode.value
+                    ? Colors.white
+                    : const Color(0xFF0e171b),
+              ),
+              onPressed: () => Get.back(),
+            ),
+            title: Text(
+              'POST-IT',
+              style: TextStyle(
+                color: mainController.isDarkMode.value
+                    ? Colors.white
+                    : const Color(0xFF0e171b),
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
+            ),
+            centerTitle: true,
+          ),
+          body: LayoutBuilder(
+            builder: (context, constraints) {
+              final isWide = constraints.maxWidth > 800;
+              return SingleChildScrollView(
+                padding: EdgeInsets.symmetric(
+                  horizontal: isWide ? 80 : 20,
+                  vertical: 24,
+                ),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 960),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                          child: TextField(
-                            onChanged: (inputText) =>
-                                controller.setCommentController(inputText),
-                            decoration:
-                                InputDecoration(hintText: "Add a comment..."),
+                        Text(
+                          "Home / Post",
+                          style: TextStyle(
+                            color: mainController.isDarkMode.value
+                                ? Colors.grey[400]
+                                : const Color(0xFF6c757d),
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
-                        IconButton(
-                            onPressed: () {
-                              controller.saveComment(intPostId);
-                            },
-                            icon: Icon(Icons.send))
+                        const SizedBox(height: 16),
+                        Obx(() => Text(
+                              controller.postTitle.value,
+                              style: TextStyle(
+                                color: mainController.isDarkMode.value
+                                    ? Colors.white
+                                    : const Color(0xFF0e171b),
+                                fontSize: 26,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            )),
+                        const SizedBox(height: 16),
+                        Obx(() => Text(
+                              controller.postContent.value,
+                              style: TextStyle(
+                                color: mainController.isDarkMode.value
+                                    ? Colors.grey[300]
+                                    : const Color(0xFF0e171b),
+                                fontSize: 16,
+                                height: 1.6,
+                              ),
+                            )),
+                        const SizedBox(height: 12),
+                        Obx(() => Text(
+                              "Posted by ${controller.postAuthor.value}",
+                              style: TextStyle(
+                                color: mainController.isDarkMode.value
+                                    ? Colors.grey[400]
+                                    : const Color(0xFF6c757d),
+                                fontSize: 13,
+                              ),
+                            )),
+                        const SizedBox(height: 32),
+                        Text(
+                          "Comments",
+                          style: TextStyle(
+                              color: mainController.isDarkMode.value
+                                  ? Colors.white
+                                  : const Color(0xFF0e171b),
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 16),
+                        Obx(() => Column(
+                              children: controller.commentList.map((c) {
+                                return Container(
+                                  margin: const EdgeInsets.only(bottom: 20),
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      const CircleAvatar(
+                                        radius: 20,
+                                        backgroundImage: NetworkImage(
+                                            "https://lh3.googleusercontent.com/aida-public/AB6AXuCSvLtObV-SOSW0nYAUZQzaWgn-qEECPop_Yfdx-50d6tirGZkec51I6XFrl238YK6ow5nXPf-2yXhXcPwrvze5vGFk_zzjia1hYU-AR0Cr_KvNLPHbx1AjiA50-Vb_GIE0N0gZzAN40-kiGuKFzOf7XBBgxUHZwXH89BuDPwLQyduI_d3RmM56o5ARdjBi1om5GiCZor_dhvVTz6GaNytujGvzmfpIgdtHwtjwqW76ugUyByYvsAbF923TYAoV2v0i1VzrGCbOL4g"),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Row(
+                                              children: [
+                                                Text(
+                                                  c['name']!,
+                                                  style: TextStyle(
+                                                      color: mainController
+                                                              .isDarkMode.value
+                                                          ? Colors.white
+                                                          : const Color(
+                                                              0xFF0e171b),
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: 14),
+                                                ),
+                                                const SizedBox(width: 8),
+                                                Text(
+                                                  c['time']!,
+                                                  style: TextStyle(
+                                                      color: mainController
+                                                              .isDarkMode.value
+                                                          ? Colors.grey[400]
+                                                          : const Color(
+                                                              0xFF6c757d),
+                                                      fontSize: 12),
+                                                ),
+                                              ],
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              c['content']!,
+                                              style: TextStyle(
+                                                color: mainController
+                                                        .isDarkMode.value
+                                                    ? Colors.grey[300]
+                                                    : const Color(0xFF0e171b),
+                                                fontSize: 14,
+                                                height: 1.5,
+                                              ),
+                                            )
+                                          ],
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                );
+                              }).toList(),
+                            )),
                       ],
                     ),
-                  ],
+                  ),
                 ),
-              ),
-      ),
-    );
-  }
-}
-
-// class Comment {
-//   final String author;
-//   final String content;
-//   final int likes;
-//
-//   Comment(this.author, this.content, this.likes);
-// }
-
-class CommentWidget extends StatelessWidget {
-  final Comment comment;
-
-  CommentWidget({required this.comment});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [Text(comment.author), Text("Oct 14")],
-        ),
-        Text(comment.content),
-        Row(children: [
-          Icon(Icons.thumb_up),
-          Text("likes"),
-        ]),
-        Divider(),
-        SizedBox(height: 8),
-      ],
-    );
+              );
+            },
+          ),
+        ));
   }
 }

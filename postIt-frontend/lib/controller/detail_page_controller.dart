@@ -17,9 +17,46 @@ class DetailPageController extends GetxController {
 
   final String basedUrl = AppRoute.basedUrl; // local
   Rxn<Post> post = Rxn();
+
   RxList<Comment> comments = RxList();
   final _storage = GetStorage();
   TextEditingController commentController = TextEditingController();
+
+  //ux 개선 임시 데이터
+  final postTitle = "Exploring the Art of Urban Gardening".obs;
+  final postContent = """
+Urban gardening is more than just a hobby; it's a way to connect with nature in the midst of city life. 
+From balconies to rooftops, transforming small spaces into green havens is both rewarding and sustainable.
+"""
+      .obs;
+  final postAuthor = "Sarah Miller".obs;
+
+  final commentList = [
+    {
+      "name": "Alex Johnson",
+      "time": "2d",
+      "content":
+          "This is so inspiring! I've always wanted to start a small garden on my balcony but wasn't sure where to begin."
+    },
+    {
+      "name": "Emily Carter",
+      "time": "3d",
+      "content":
+          "I've been urban gardening for a few years now, and it's truly a game-changer. The fresh herbs and vegetables are a delight."
+    },
+    {
+      "name": "David Lee",
+      "time": "4d",
+      "content":
+          "Great post! I'm curious about vertical gardening. Do you have any recommendations for plants that thrive in vertical setups?"
+    },
+    {
+      "name": "Olivia Brown",
+      "time": "5d",
+      "content":
+          "I love the idea of urban gardening! It's amazing how much you can grow in a small space."
+    },
+  ].obs;
 
   getDetailPost(int id) async {
     print(":::: getDetailPost");

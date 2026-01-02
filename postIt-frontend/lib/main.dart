@@ -11,6 +11,7 @@ import 'package:postit_frontend/view/main_page.dart';
 import 'package:postit_frontend/view/post_detail_page.dart';
 import 'package:postit_frontend/view/post_write_page.dart';
 import 'package:postit_frontend/view/sign_up_page.dart';
+import 'package:postit_frontend/view/login_page.dart';
 import 'package:postit_frontend/view/social_login_callback_page.dart';
 
 void main() async {
@@ -31,40 +32,78 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'POST-IT',
-      theme: ThemeData(
-        scaffoldBackgroundColor: Colors.white,
-        fontFamily: 'Roboto',
-      ),
-      initialRoute: initialRoute,
-      getPages: [
-        GetPage(name: "/", page: () => MainPage()),
-        GetPage(
-            name: "/board/:id",
-            page: () {
-              final postId = Get.parameters["id"];
-              return PostDetailPage(postId: postId!);
-            }
-            // binding: BindingsBuilder(() =>
-            //     Get.lazyPut<DetailPageController>(() => DetailPageController())),
+    // MainController를 먼저 초기화
+    Get.put(MainController(), permanent: true);
+
+    return GetBuilder<MainController>(
+      builder: (controller) {
+        return GetMaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: 'POST-IT',
+          themeMode:
+              controller.isDarkMode.value ? ThemeMode.dark : ThemeMode.light,
+          theme: ThemeData(
+            brightness: Brightness.light,
+            scaffoldBackgroundColor: Colors.white,
+            colorScheme: ColorScheme.light(
+              primary: Colors.blue,
+              secondary: Colors.blueAccent,
+              surface: Colors.white,
             ),
-        GetPage(name: "/signup", page: () => SignUpPage()),
-        GetPage(
-            name: "/auth/social/callback",
-            page: () => SocialLoginCallbackPage()),
-        GetPage(name: '/post', page: () => PostWritePage()),
-      ],
-      // initialRoute: "/",
-      initialBinding: BindingsBuilder(() {
-        Get.lazyPut(() => MainController(), fenix: true);
-        Get.lazyPut(() => DetailPageController(), fenix: true);
-        Get.lazyPut(() => WritingPostController(), fenix: true);
-        Get.lazyPut(() => SignUpController(), fenix: true);
-        Get.lazyPut(() => SocialLoginCallbackController(), fenix: true);
-      }),
-      home: MainPage(),
+            appBarTheme: const AppBarTheme(
+              backgroundColor: Colors.white,
+              foregroundColor: Color(0xFF0e171b),
+              elevation: 0,
+            ),
+          ),
+          darkTheme: ThemeData(
+            brightness: Brightness.dark,
+            scaffoldBackgroundColor: const Color(0xFF121212),
+            colorScheme: const ColorScheme.dark(
+              primary: Colors.blue,
+              secondary: Colors.blueAccent,
+              surface: Color(0xFF1E1E1E),
+            ),
+            appBarTheme: const AppBarTheme(
+              backgroundColor: Color(0xFF1E1E1E),
+              foregroundColor: Colors.white,
+              elevation: 0,
+            ),
+          ),
+          // theme: ThemeData(
+          //   scaffoldBackgroundColor: Colors.white,
+          //   fontFamily: 'Roboto',
+          // ),
+          initialRoute: initialRoute,
+          getPages: [
+            GetPage(name: "/", page: () => MainPage()),
+            GetPage(
+                name: "/board/:id",
+                page: () {
+                  final postId = Get.parameters["id"];
+                  return PostDetailPage(postId: postId!);
+                }
+                // binding: BindingsBuilder(() =>
+                //     Get.lazyPut<DetailPageController>(() => DetailPageController())),
+                ),
+            GetPage(name: "/login", page: () => LoginPage()),
+            GetPage(name: "/signup", page: () => SignUpPage()),
+            GetPage(
+                name: "/auth/social/callback",
+                page: () => SocialLoginCallbackPage()),
+            GetPage(name: '/post', page: () => PostWritePage()),
+          ],
+          // initialRoute: "/",
+          initialBinding: BindingsBuilder(() {
+            Get.lazyPut(() => MainController(), fenix: true);
+            Get.lazyPut(() => DetailPageController(), fenix: true);
+            Get.lazyPut(() => WritingPostController(), fenix: true);
+            Get.lazyPut(() => SignUpController(), fenix: true);
+            Get.lazyPut(() => SocialLoginCallbackController(), fenix: true);
+          }),
+          home: MainPage(),
+        );
+      },
     );
   }
 }
