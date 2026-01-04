@@ -16,7 +16,7 @@ public interface PostRepository extends JpaRepository<Post, Long>, PostQueryRepo
     Page<Post> findAll(Pageable pageable);
     void deleteById(@Nullable Long id);
 
-    @EntityGraph(attributePaths = {"comments", "member"})
+    @EntityGraph(attributePaths = {"member"})
     Optional<Post> findById(@Nullable Long id);
 
 //    @Transactional @Modifying @Query("update Post p set p.viewCount = p.viewCount + :count where p.id = :postId")

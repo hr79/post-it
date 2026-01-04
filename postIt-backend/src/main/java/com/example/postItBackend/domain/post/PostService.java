@@ -1,6 +1,6 @@
 package com.example.postItBackend.domain.post;
 
-import com.example.postItBackend.domain.comment.dto.CommentResponseDto;
+import com.example.postItBackend.domain.post.dto.PostDetailResponseDto;
 import com.example.postItBackend.domain.post.dto.PostListPageDto;
 import com.example.postItBackend.domain.post.dto.PostRequestDto;
 import com.example.postItBackend.domain.post.dto.PostResponseDto;
@@ -38,7 +38,6 @@ public class PostService {
         Page<PostListPageDto> postList = postRepository.getPostList(pageable);
 
         return postList.toList();
-//        return postList.stream().map(post -> new PostResponseDto(post)).toList();
     }
 
     @Transactional
@@ -59,14 +58,11 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public PostResponseDto getPost(Long id) {
-        Post post = postRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("No Post"));
+    public PostDetailResponseDto getPost(Long id) {
+        PostDetailResponseDto post = postRepository.findPostDetailById(id).orElseThrow(() -> new IllegalArgumentException("No Post"));
         cacheUtil.increaseViewCount(id); // 조회된 글의 조회수 증가(caching)
-        List<CommentResponseDto> commentResponseDtoList = post.getComments().stream()
-                .map(c -> new CommentResponseDto(c))
-                .toList();
 
-        return new PostResponseDto(post, commentResponseDtoList);
+        return post;
     }
 
     @Transactional
