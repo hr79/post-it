@@ -10,10 +10,10 @@ class Post {
   String? nickname;
 
   Post({
-    required this.id,
-    required this.title,
-    required this.content,
-    required this.viewCount,
+    this.id,
+    this.title,
+    this.content,
+    this.viewCount,
     this.commentCount,
     this.username,
     this.nickname,

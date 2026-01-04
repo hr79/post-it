@@ -1,22 +1,26 @@
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:postit_frontend/app_route.dart';
 import 'package:postit_frontend/model/post.dart';
+import 'package:postit_frontend/service/detail_page_service.dart';
 
 import '../model/comment.dart';
 import 'main_controller.dart';
 
 class DetailPageController extends GetxController {
   final Dio _dio = Dio();
+  final _storage = GetStorage();
+  final DetailPageService _detailPageService = DetailPageService();
 
   final String basedUrl = AppRoute.basedUrl; // local
   Rxn<Post> post = Rxn();
 
   RxList<Comment> comments = RxList();
-  final _storage = GetStorage();
+
   TextEditingController commentController = TextEditingController();
 
   //ux 개선 임시 데이터
@@ -55,31 +59,22 @@ From balconies to rooftops, transforming small spaces into green havens is both 
     },
   ].obs;
 
-  getDetailPost(int id) async {
-    print(":::: getDetailPost");
+  getPost(int postId) async {
+    print(":::: getPost");
+    post.value = await _detailPageService.getPost(postId);
+  }
 
-    var resPost = await _dio.get("$basedUrl/board/$id");
-    // print(resPost.data["data"]);
-    Map<String, dynamic> mapData =
-        Map<String, dynamic>.from(resPost.data["data"]);
-    post.value = Post.fromMap(mapData);
-    // print("post.value : ${post.value}");
-    // print("post.value.member.username : ${post.value?.member?.username})}");
-    // print(resPost.data["data"]["comments"]);
+  getComments(int postId) async {
+    if (kDebugMode) {
+      print("getComments");
+    }
+    List<Comment>? commentList =
+        await _detailPageService.getCommentsInPost(postId);
 
-    // 댓글 초기화
     comments.clear();
 
-    if (resPost.data["data"]["comments"] != null) {
-      List<Map<String, dynamic>> commentListMapData =
-          List<Map<String, dynamic>>.from(resPost.data["data"]["comments"]);
-
-      if (commentListMapData.isNotEmpty) {
-        List<Comment> commentList =
-            commentListMapData.map((c) => Comment.fromMap(c)).toList();
-        comments.value = commentList;
-        print("${comments}");
-      }
+    if (commentList != null) {
+      comments.value = commentList;
     }
   }
 

@@ -43,12 +43,12 @@ public class CommentService {
     public CommentResponseDto createComment(Long postId, CommentRequestDto requestDto, UserDetails userDetails) {
         Member member = cacheUtil.findByUsernameWithCache(userDetails.getUsername());
         Post post = postRepository.findById(postId).orElseThrow(() -> new IllegalArgumentException("Post not found"));
-        Comment comment = Comment.builder()
-                .content(requestDto.getContent())
-                .member(member)
-                .post(post)
-                .build();
+
+        Comment comment = Comment.builder().content(requestDto.getContent()).member(member).post(post).build();
+        post.increaseCommentCount();
+
         commentRepository.save(comment);
+
         return new CommentResponseDto(comment);
     }
 
