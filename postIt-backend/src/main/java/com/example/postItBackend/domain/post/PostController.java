@@ -1,6 +1,7 @@
 package com.example.postItBackend.domain.post;
 
 import com.example.postItBackend.common.response.ApiResponse;
+import com.example.postItBackend.domain.post.dto.PostDetailResponseDto;
 import com.example.postItBackend.domain.post.dto.PostListPageDto;
 import com.example.postItBackend.domain.post.dto.PostRequestDto;
 import com.example.postItBackend.domain.post.dto.PostResponseDto;
@@ -52,7 +53,7 @@ public class PostController {
     @GetMapping("/{boardId}")
     public ResponseEntity<?> getPost(@PathVariable("boardId") Long id) {
 
-        PostResponseDto postResponseDto = postService.getPost(id);
+        PostDetailResponseDto postResponseDto = postService.getPost(id);
 
         return  ResponseEntity.ok().body(ApiResponse.success(postResponseDto, HttpStatus.OK.value(), "게시글 불러오기 성공"));
     }

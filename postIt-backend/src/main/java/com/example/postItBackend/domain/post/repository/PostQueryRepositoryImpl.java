@@ -1,5 +1,7 @@
 package com.example.postItBackend.domain.post.repository;
 
+import com.example.postItBackend.domain.auth.model.QMember;
+import com.example.postItBackend.domain.post.dto.PostDetailResponseDto;
 import com.example.postItBackend.domain.post.dto.PostListPageDto;
 import com.example.postItBackend.domain.post.QPost;
 import com.querydsl.core.types.Expression;
@@ -8,7 +10,6 @@ import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -17,15 +18,21 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 
 @Slf4j
-@RequiredArgsConstructor
 public class PostQueryRepositoryImpl implements PostQueryRepository {
 
     private final EntityManager entityManager;
-//    private final JPAQueryFactory queryFactory;
+    private final JPAQueryFactory queryFactory;
+
+    public PostQueryRepositoryImpl(EntityManager entityManager) {
+        this.entityManager = entityManager;
+        this.queryFactory = new JPAQueryFactory(entityManager);
+    }
+
 
     // 캐싱한 여러 글들의 조회수 데이터들들 쿼리 한번에 db에 업데이트하기 위해 직접 작성
     @Override
@@ -67,7 +74,7 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
     @Override
     @Transactional
     public void bulkUpdateViewCountWithQueryDsl(Map<Long, Integer> viewCountCache) {
-        JPAQueryFactory queryFactory = new JPAQueryFactory(entityManager);
+//        JPAQueryFactory queryFactory = new JPAQueryFactory(entityManager);
         QPost post = QPost.post;
         // JPAUpdateClause 객체를 생성합니다.
 //        UpdateClause<JPAUpdateClause> updateClause = queryFactory.update(post);
@@ -102,9 +109,10 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
         log.info(queryFactory.query().toString());
     }
 
+
     @Override
     public Page<PostListPageDto> getPostList(Pageable pageable) {
-        JPAQueryFactory queryFactory = new JPAQueryFactory(entityManager);
+//        JPAQueryFactory queryFactory = new JPAQueryFactory(entityManager);
         QPost post = QPost.post;
 
         List<PostListPageDto> dtoList = queryFactory.select(Projections.constructor(
@@ -116,5 +124,28 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
                 .fetch();
 
         return new PageImpl<>(dtoList, pageable, dtoList.size());
+    }
+
+    @Override
+    public Optional<PostDetailResponseDto> findPostDetailById(Long postId) {
+        QPost post = QPost.post;
+        QMember member = QMember.member;
+
+        return Optional.ofNullable(
+                queryFactory
+                        .select(Projections.constructor(
+                                PostDetailResponseDto.class,
+                                post.id,
+                                post.title,
+                                post.content,
+                                post.viewCount,
+                                member.username,
+                                member.nickname
+                        ))
+                        .from(post)
+                        .join(post.member, member)
+                        .where(post.id.eq(postId))
+                        .fetchOne()
+        );
     }
 }
