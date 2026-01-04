@@ -29,15 +29,14 @@ public class Post extends BaseEntity {
     private String content;
 
     @Column(nullable = false)
-    private int viewCount;
+    private int viewCount = 0;
+
+    @Column(nullable = false)
+    private int commentCount = 0;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
-
-    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Comment> comments = new ArrayList<>();
-
 
     @Builder
     public Post(String title, String content, Member member) {
@@ -45,11 +44,16 @@ public class Post extends BaseEntity {
         this.content = content;
         this.member = member;
         this.viewCount = 0;
+        this.commentCount = 0;
     }
 
     public Post update(String title, String content) {
         this.title = title;
         this.content = content;
         return this;
+    }
+
+    public void increaseCommentCount() {
+        this.commentCount++;
     }
 }

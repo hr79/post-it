@@ -21,7 +21,8 @@ class PostDetailPage extends GetView<DetailPageController> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final postIdInt = int.tryParse(postId);
       if (postIdInt != null && controller.post.value == null) {
-        controller.getDetailPost(postIdInt);
+        controller.getPost(postIdInt);
+        controller.getComments(postIdInt);
       }
     });
 
