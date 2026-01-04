@@ -311,7 +311,7 @@ class PostDetailPage extends GetView<DetailPageController> {
                                               Row(
                                                 children: [
                                                   Text(
-                                                    c.author,
+                                                    c.nickname,
                                                     style: TextStyle(
                                                         color: mainController
                                                                 .isDarkMode
