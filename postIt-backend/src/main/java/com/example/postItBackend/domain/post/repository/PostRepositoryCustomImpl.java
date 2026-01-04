@@ -10,6 +10,7 @@ import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -23,15 +24,16 @@ import java.util.Set;
 
 
 @Slf4j
-public class PostQueryRepositoryImpl implements PostQueryRepository {
+@RequiredArgsConstructor
+public class PostRepositoryCustomImpl implements PostRepositoryCustom {
 
     private final EntityManager entityManager;
     private final JPAQueryFactory queryFactory;
 
-    public PostQueryRepositoryImpl(EntityManager entityManager) {
-        this.entityManager = entityManager;
-        this.queryFactory = new JPAQueryFactory(entityManager);
-    }
+//    public PostQueryRepositoryImpl(EntityManager entityManager) {
+//        this.entityManager = entityManager;
+//        this.queryFactory = new JPAQueryFactory(entityManager);
+//    }
 
 
     // 캐싱한 여러 글들의 조회수 데이터들들 쿼리 한번에 db에 업데이트하기 위해 직접 작성
@@ -90,6 +92,7 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
 //        updateClause.execute();
 //        var caseExpression = new CaseBuilder();
         Expression<Integer> caseExpression = post.viewCount;
+
         for (Map.Entry<Long, Integer> entry : viewCountCache.entrySet()) {
             Long postId = (Long) entry.getKey();
             Integer count = (Integer) entry.getValue();
