@@ -30,6 +30,7 @@ public class PostResponseDto {
     public PostResponseDto(PostListPageDto postListPageDto) {
         this.id = postListPageDto.getId();
         this.title = postListPageDto.getTitle();
+        this.nickname = postListPageDto.getNickname();
         this.viewCount = postListPageDto.getViewCount();
     }
 }

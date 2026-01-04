@@ -106,9 +106,9 @@ public class PostQueryRepositoryImpl implements PostQueryRepository {
     public Page<PostListPageDto> getPostList(Pageable pageable) {
         JPAQueryFactory queryFactory = new JPAQueryFactory(entityManager);
         QPost post = QPost.post;
-        
+
         List<PostListPageDto> dtoList = queryFactory.select(Projections.constructor(
-                PostListPageDto.class, post.id, post.title, post.viewCount))
+                        PostListPageDto.class, post.id, post.title, post.content, post.member.nickname, post.member.username, post.viewCount, post.commentCount))
                 .from(post)
                 .orderBy(post.id.desc())
                 .offset(pageable.getOffset())

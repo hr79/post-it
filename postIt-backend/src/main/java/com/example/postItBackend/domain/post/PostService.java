@@ -34,10 +34,11 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public List<PostResponseDto> getAllPosts(Pageable pageable) {
+    public List<PostListPageDto> getAllPosts(Pageable pageable) {
         Page<PostListPageDto> postList = postRepository.getPostList(pageable);
 
-        return postList.stream().map(post -> new PostResponseDto(post)).toList();
+        return postList.toList();
+//        return postList.stream().map(post -> new PostResponseDto(post)).toList();
     }
 
     @Transactional

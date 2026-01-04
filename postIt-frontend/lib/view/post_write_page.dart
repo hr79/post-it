@@ -16,12 +16,21 @@ class PostWritePage extends GetView<WritingPostController> {
     final post = Get.arguments; // 전달된 Post 객체
     final mainController = Get.find<MainController>();
 
-    if (post != null && post is Post) {
-      // 수정 모드 - 초기값 세팅
-      controller.titleController.text = post.title!;
-      controller.contentController.text = post.content!;
-      var postId = post.id; // id도 저장해서 수정요청 시 사용
-    }
+    // 수정 모드일 때 한 번만 초기값 세팅
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (post != null && post is Post) {
+        // 이미 설정되어 있지 않은 경우에만 설정
+        if (controller.titleController.text != post.title ||
+            controller.contentController.text != post.content) {
+          controller.titleController.text = post.title ?? "";
+          controller.contentController.text = post.content ?? "";
+        }
+      } else {
+        // 새 글 작성 모드일 때는 초기화
+        controller.titleController.clear();
+        controller.contentController.clear();
+      }
+    });
 
     return Obx(() => Scaffold(
           backgroundColor: mainController.isDarkMode.value
@@ -52,13 +61,14 @@ class PostWritePage extends GetView<WritingPostController> {
             ),
             actions: [
               TextButton(
-                onPressed: () {
+                onPressed: () async {
                   if (post != null) {
-                    controller.editPost(post);
+                    await controller.editPost(post);
                   } else {
-                    controller.savePost();
+                    await controller.savePost();
                   }
-                  Navigator.of(context).pop();
+                  // 메인페이지로 이동하고 뒤로가기 방지
+                  Get.offAllNamed("/");
                 },
                 child: const Text(
                   "Post",

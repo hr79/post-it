@@ -6,7 +6,8 @@ class Post {
   String? content;
   int? viewCount;
   int? commentCount;
-  Member? member;
+  String? username;
+  String? nickname;
 
   Post({
     required this.id,
@@ -14,7 +15,8 @@ class Post {
     required this.content,
     required this.viewCount,
     this.commentCount,
-    required this.member,
+    this.username,
+    this.nickname,
   });
 
   Map<String, dynamic> toMap() {
@@ -24,8 +26,8 @@ class Post {
       'content': this.content,
       'viewCount': this.viewCount,
       'commentCount': this.commentCount,
-      'username': member?.username,
-      'nickname': member?.nickname,
+      'username': this.username,
+      'nickname': this.nickname,
     };
   }
 
@@ -36,10 +38,8 @@ class Post {
       content: map['content'],
       viewCount: map['viewCount'],
       commentCount: map['commentCount'],
-      member: Member(
-        username: map['username'] as String?,
-        nickname: map['nickname'] as String?,
-      ),
+      username: map['username'] as String?,
+      nickname: map['nickname'] as String?,
     );
   }
 }
