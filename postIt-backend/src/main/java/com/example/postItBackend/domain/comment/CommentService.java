@@ -3,8 +3,8 @@ package com.example.postItBackend.domain.comment;
 import com.example.postItBackend.domain.comment.dto.CommentRequestDto;
 import com.example.postItBackend.domain.comment.dto.CommentResponseDto;
 import com.example.postItBackend.domain.auth.model.Member;
+import com.example.postItBackend.domain.comment.repository.CommentRepository;
 import com.example.postItBackend.domain.post.Post;
-import com.example.postItBackend.domain.auth.MemberRepository;
 import com.example.postItBackend.domain.post.repository.PostRepository;
 import com.example.postItBackend.common.util.CacheUtil;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,24 +19,17 @@ public class CommentService {
 
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
-    private final MemberRepository memberRepository;
     private final CacheUtil cacheUtil;
 
-    public CommentService(CommentRepository commentRepository, MemberRepository memberRepository, PostRepository postRepository, CacheUtil cacheUtil) {
+    public CommentService(CommentRepository commentRepository, PostRepository postRepository, CacheUtil cacheUtil) {
         this.postRepository = postRepository;
-        this.memberRepository = memberRepository;
         this.commentRepository = commentRepository;
         this.cacheUtil = cacheUtil;
     }
 
     @Transactional(readOnly = true)
     public List<CommentResponseDto> getCommentsInPost(Long postId) {
-        List<Comment> commentList = commentRepository.findAllByPostId(postId);
-        return commentList.stream()
-                .map(comment -> new CommentResponseDto(
-                        comment.getId(), comment.getContent(), comment.getMember().getNickname(), postId))
-                .toList();
-
+        return commentRepository.findCommentsByPostIdWithProjection(postId);
     }
 
     @Transactional

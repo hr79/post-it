@@ -10,7 +10,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 import java.util.Optional;
 
-public interface PostRepository extends JpaRepository<Post, Long>, PostQueryRepository {
+public interface PostRepository extends JpaRepository<Post, Long>, PostRepositoryCustom {
 
     @EntityGraph(attributePaths = {"comments", "member"}) List<Post> findAll();
     Page<Post> findAll(Pageable pageable);

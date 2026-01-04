@@ -8,7 +8,7 @@ import org.springframework.data.domain.Pageable;
 import java.util.Map;
 import java.util.Optional;
 
-public interface PostQueryRepository {
+public interface PostRepositoryCustom {
     void bulkUpdateViewCount(Map<Object, Object> viewCountCache);
     void bulkUpdateViewCountWithQueryDsl(Map<Long, Integer> viewCountCache);
     Page<PostListPageDto> getPostList(Pageable pageable);

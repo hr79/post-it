@@ -193,7 +193,7 @@ From balconies to rooftops, transforming small spaces into green havens is both 
     if (currentUsername == null) {
       return false;
     }
-    return comment.author == currentUsername;
+    return comment.username == currentUsername;
   }
 
   deleteComment(int commentId) async {
