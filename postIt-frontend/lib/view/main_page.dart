@@ -2,9 +2,11 @@ import 'package:postit_frontend/widget/default_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:postit_frontend/view/post_write_page.dart';
+import 'package:postit_frontend/widget/login_logout_button.dart';
 import 'package:postit_frontend/widget/post_item_widget.dart';
 
 import '../controller/main_controller.dart';
+import '../controller/auth_controller.dart';
 
 class MainPage extends GetView<MainController> {
   const MainPage({super.key});
@@ -67,47 +69,17 @@ class MainPage extends GetView<MainController> {
               Padding(
                 padding: const EdgeInsets.only(right: 16.0),
                 child: Obx(
-                  () => controller.isLoggedIn.value
-                      ? TextButton(
-                          onPressed: controller.logOut,
-                          style: TextButton.styleFrom(
-                            foregroundColor: controller.isDarkMode.value
-                                ? Colors.white
-                                : Colors.black87,
-                            textStyle: const TextStyle(fontSize: 16),
-                          ),
-                          child: const Text('Log Out'),
-                        )
-                      : Container(
-                          height: 40,
-                          constraints: const BoxConstraints(
-                            minWidth: 84,
-                            maxWidth: 480,
-                          ),
-                          child: ElevatedButton(
-                            onPressed: () {
-                              Get.toNamed('/login');
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF13ec13),
-                              foregroundColor: const Color(0xFF0d1b0d),
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              elevation: 0,
-                            ),
-                            child: const Text(
-                              'Login',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.bold,
-                                letterSpacing: 0.015,
-                              ),
-                            ),
-                          ),
-                        ),
+                  () => LoginLogoutButton(
+                    isLoggedIn: controller.isLoggedIn.value,
+                    onLoginPressed: () {
+                      Get.toNamed("/login");
+                    },
+                    onLogoutPressed: () {
+                      final authController = Get.find<AuthController>();
+                      authController.logOut();
+                      controller.checkLoginStatus();
+                    },
+                  ),
                 ),
               ),
             ],
@@ -171,6 +143,26 @@ class MainPage extends GetView<MainController> {
             padding: const EdgeInsets.only(bottom: 8.0, right: 4),
             child: FloatingActionButton(
               onPressed: () {
+                if (!controller.isLoggedIn.value) {
+                  Get.snackbar(
+                    '알림',
+                    '로그인 후 이용할 수 있습니다.',
+                    snackPosition: SnackPosition.TOP,
+                    backgroundColor: controller.isDarkMode.value
+                        ? const Color(0xFF1E1E1E)
+                        : Colors.white,
+                    colorText: controller.isDarkMode.value
+                        ? Colors.white
+                        : const Color(0xFF0e171b),
+                    margin: const EdgeInsets.only(
+                      top: 75,
+                      left: 16,
+                      right: 16,
+                      bottom: 16,
+                    ),
+                  );
+                  return;
+                }
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => PostWritePage()),

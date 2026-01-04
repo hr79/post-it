@@ -29,10 +29,11 @@ class WritingPostController extends GetxController {
       );
       print("${response.data}");
 
-      // 1. 기존 메인 컨트롤러 제거
-      // 2. 메인 페이지로 이동 → 컨트롤러 새로 생성됨 → onInit()에서 목록 재조회됨
-      Get.delete<MainController>();
-      Get.offAllNamed('/');
+      // 메인 컨트롤러의 포스트 리스트 새로고침
+      final mainController = Get.find<MainController>();
+      mainController.postList.clear();
+      mainController.pageNum.value = 0;
+      await mainController.getPostlist();
     } on DioException catch (e) {
       print(e.message);
       print(e.stackTrace);
@@ -65,7 +66,13 @@ class WritingPostController extends GetxController {
         ),
       );
       print("response : ${response.toString()}");
-    } catch (e){
+
+      // 메인 컨트롤러의 포스트 리스트 새로고침
+      final mainController = Get.find<MainController>();
+      mainController.postList.clear();
+      mainController.pageNum.value = 0;
+      await mainController.getPostlist();
+    } catch (e) {
       print(e);
     }
   }

@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -9,7 +7,6 @@ import 'package:postit_frontend/app_route.dart';
 import 'package:postit_frontend/model/post.dart';
 
 import '../model/comment.dart';
-import '../view/main_page.dart';
 import 'main_controller.dart';
 
 class DetailPageController extends GetxController {
@@ -69,14 +66,20 @@ From balconies to rooftops, transforming small spaces into green havens is both 
     // print("post.value : ${post.value}");
     // print("post.value.member.username : ${post.value?.member?.username})}");
     // print(resPost.data["data"]["comments"]);
-    List<Map<String, dynamic>> commentListMapData =
-        List<Map<String, dynamic>>.from(resPost.data["data"]["comments"]);
 
-    if (commentListMapData.isNotEmpty) {
-      List<Comment> commentList =
-          commentListMapData.map((c) => Comment.fromMap(c)).toList();
-      comments.value = commentList;
-      print("${comments.value}");
+    // 댓글 초기화
+    comments.clear();
+
+    if (resPost.data["data"]["comments"] != null) {
+      List<Map<String, dynamic>> commentListMapData =
+          List<Map<String, dynamic>>.from(resPost.data["data"]["comments"]);
+
+      if (commentListMapData.isNotEmpty) {
+        List<Comment> commentList =
+            commentListMapData.map((c) => Comment.fromMap(c)).toList();
+        comments.value = commentList;
+        print("${comments}");
+      }
     }
   }
 
@@ -91,10 +94,9 @@ From balconies to rooftops, transforming small spaces into green havens is both 
       }
       var decode = JWT.decode(token);
       print("jwt username: ${decode.payload["sub"]}");
-      print(
-          "post username: ${post.value!.member?.username ?? "no member info"}");
+      print("post username: ${post.value?.username ?? "no member info"}");
 
-      if (decode.payload["sub"] == post.value?.member?.username) {
+      if (decode.payload["sub"] == post.value?.username) {
         return true;
       }
     } catch (e) {
@@ -120,10 +122,14 @@ From balconies to rooftops, transforming small spaces into green havens is both 
 
       print(response.toString());
 
-      // 1. 기존 메인 컨트롤러 제거
-      Get.delete<MainController>();
-      // 2. 메인 페이지로 이동 → 컨트롤러 새로 생성됨 → onInit()에서 목록 재조회됨
-      Get.offAll(() => MainPage());
+      // 메인 컨트롤러의 포스트 리스트 새로고침
+      final mainController = Get.find<MainController>();
+      mainController.postList.clear();
+      mainController.pageNum.value = 0;
+      await mainController.getPostlist();
+
+      // 메인 페이지로 이동
+      Get.offAllNamed("/");
     } catch (e) {
       print(e);
     }
@@ -131,24 +137,92 @@ From balconies to rooftops, transforming small spaces into green havens is both 
 
   saveComment(int id) async {
     print(":::: saveComment");
-    String comment = commentController.text;
+    String comment = commentController.text.trim();
+
+    if (comment.isEmpty) {
+      return;
+    }
 
     String? token = _storage.read("token");
-    var response = await _dio.post(
-      "$basedUrl/board/$id/comment",
-      data: {
-        "content": comment,
-        "author": "anonymous",
-      },
-      options: Options(
-          headers: {"Authorization": "Bearer $token"},
-          contentType: Headers.jsonContentType),
-    );
-    print(response.toString());
+    try {
+      var response = await _dio.post(
+        "$basedUrl/board/$id/comment",
+        data: {
+          "content": comment,
+          "author": "anonymous",
+        },
+        options: Options(
+            headers: {"Authorization": "Bearer $token"},
+            contentType: Headers.jsonContentType),
+      );
+      print(response.toString());
+
+      // 댓글 작성 성공 시 리스트에 추가
+      if (response.data != null && response.data["data"] != null) {
+        Map<String, dynamic> commentData =
+            Map<String, dynamic>.from(response.data["data"]);
+        Comment newComment = Comment.fromMap(commentData);
+        // 새로운 리스트를 생성하여 할당 (GetX reactive 업데이트)
+        final updatedComments = List<Comment>.from(comments)..add(newComment);
+        comments.value = updatedComments;
+        commentController.clear();
+      }
+    } catch (e) {
+      print("댓글 작성 실패: $e");
+    }
   }
 
   setCommentController(String inputText) {
-    commentController = TextEditingController(text: inputText);
+    commentController.text = inputText;
     print(commentController.text);
+  }
+
+  // 현재 로그인한 사용자 확인
+  String? getCurrentUsername() {
+    try {
+      String? token = _storage.read("token");
+      if (token == null) {
+        return null;
+      }
+      var decode = JWT.decode(token);
+      return decode.payload["sub"] as String?;
+    } catch (e) {
+      print(e);
+      return null;
+    }
+  }
+
+  // 댓글 작성자 확인
+  bool isCommentAuthor(Comment comment) {
+    String? currentUsername = getCurrentUsername();
+    if (currentUsername == null) {
+      return false;
+    }
+    return comment.author == currentUsername;
+  }
+
+  deleteComment(int commentId) async {
+    print(":::: deleteComment");
+    try {
+      String? token = _storage.read("token");
+      if (token == null) {
+        print("token is null");
+        return;
+      }
+      var response = await _dio.delete(
+        "$basedUrl/board/${post.value!.id}/comment/$commentId",
+        options: Options(
+          headers: {"Authorization": "Bearer $token"},
+        ),
+      );
+      print(response.toString());
+
+      // 댓글 삭제 성공 시 리스트에서 제거 (GetX reactive 업데이트)
+      final updatedComments =
+          comments.where((comment) => comment.id != commentId).toList();
+      comments.value = updatedComments;
+    } catch (e) {
+      print("댓글 삭제 실패: $e");
+    }
   }
 }

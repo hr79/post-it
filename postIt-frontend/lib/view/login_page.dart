@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:postit_frontend/controller/main_controller.dart';
+import 'package:postit_frontend/controller/auth_controller.dart';
 import 'package:postit_frontend/widget/oauth_login_button.dart';
 import 'package:postit_frontend/widget/auth_text_field.dart';
 import 'package:postit_frontend/widget/default_appbar.dart';
 
-class LoginPage extends GetView<MainController> {
+class LoginPage extends GetView<AuthController> {
   const LoginPage({super.key});
 
   @override

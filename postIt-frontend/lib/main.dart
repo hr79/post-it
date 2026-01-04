@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:postit_frontend/controller/auth_controller.dart';
 import 'package:postit_frontend/controller/detail_page_controller.dart';
 import 'package:postit_frontend/controller/main_controller.dart';
 import 'package:postit_frontend/controller/sign_up_controller.dart';
@@ -70,10 +71,6 @@ class MyApp extends StatelessWidget {
               elevation: 0,
             ),
           ),
-          // theme: ThemeData(
-          //   scaffoldBackgroundColor: Colors.white,
-          //   fontFamily: 'Roboto',
-          // ),
           initialRoute: initialRoute,
           getPages: [
             GetPage(name: "/", page: () => MainPage()),
@@ -100,6 +97,7 @@ class MyApp extends StatelessWidget {
             Get.lazyPut(() => WritingPostController(), fenix: true);
             Get.lazyPut(() => SignUpController(), fenix: true);
             Get.lazyPut(() => SocialLoginCallbackController(), fenix: true);
+            Get.lazyPut(() => AuthController(), fenix: true);
           }),
           home: MainPage(),
         );
