@@ -8,8 +8,6 @@ import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.Query;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -22,104 +20,54 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-
 @Slf4j
 @RequiredArgsConstructor
 public class PostRepositoryCustomImpl implements PostRepositoryCustom {
 
-    private final EntityManager entityManager;
     private final JPAQueryFactory queryFactory;
-
-//    public PostQueryRepositoryImpl(EntityManager entityManager) {
-//        this.entityManager = entityManager;
-//        this.queryFactory = new JPAQueryFactory(entityManager);
-//    }
-
-
-    // 캐싱한 여러 글들의 조회수 데이터들들 쿼리 한번에 db에 업데이트하기 위해 직접 작성
-    @Override
-    @Transactional
-    public void bulkUpdateViewCount(Map<Object, Object> viewCountCache) {
-        // 쿼리 만들기
-        StringBuilder queryString = new StringBuilder("UPDATE Post p SET p.viewCount = CASE ");
-
-        for (Map.Entry<Object, Object> entry : viewCountCache.entrySet()) {
-            queryString.append("WHEN p.id = :postId").append(entry.getKey())
-                    .append(" THEN p.viewCount + :count").append(entry.getValue())
-                    .append(" ");
-            log.info(queryString.toString());
-        }
-        queryString.append("ELSE p.viewCount END WHERE p.id IN :postIds");
-        log.info(queryString.toString());
-
-        Query query = entityManager.createQuery(queryString.toString());
-
-        // 쿼리문 파라미터에 값 셋팅
-        for (Map.Entry<Object, Object> entry : viewCountCache.entrySet()) {
-            query.setParameter("postId" + entry.getKey(), entry.getKey());
-            query.setParameter("count" + entry.getValue(), entry.getValue());
-            log.info(query.toString());
-        }
-        query.setParameter("postIds", viewCountCache.keySet()); //:postIds 매개변수에 업데이트할 게시글 ID의 목록을 설정
-        query.executeUpdate();
-        log.info(query.toString());
-
-//        UPDATE Post p
-//        SET p.viewCount = CASE
-//            WHEN p.id = :postId1 THEN p.viewCount + :count1
-//            WHEN p.id = :postId2 THEN p.viewCount + :count2
-//            ELSE p.viewCount
-//        END
-//        WHERE p.id IN (:postIds)
-    }
 
     @Override
     @Transactional
     public void bulkUpdateViewCountWithQueryDsl(Map<Long, Integer> viewCountCache) {
-//        JPAQueryFactory queryFactory = new JPAQueryFactory(entityManager);
-        QPost post = QPost.post;
-        // JPAUpdateClause 객체를 생성합니다.
-//        UpdateClause<JPAUpdateClause> updateClause = queryFactory.update(post);
-//
-//        for (Map.Entry<Object, Object> entry : viewCountCache.entrySet()) {
-//            Object postId = entry.getKey();
-//            Integer count = (Integer) entry.getValue();
-//
-//            updateClause.set(post.viewCount, post.viewCount.add(count))
-//                    .where(post.id.eq((Long) postId));
-//            log.info(updateClause.toString());
-//        }
-//        updateClause.execute();
-//        var caseExpression = new CaseBuilder();
-        Expression<Integer> caseExpression = post.viewCount;
-
-        for (Map.Entry<Long, Integer> entry : viewCountCache.entrySet()) {
-            Long postId = (Long) entry.getKey();
-            Integer count = (Integer) entry.getValue();
-
-            // CASE WHEN 조건식
-            caseExpression = new CaseBuilder()
-                    .when(post.id.eq(postId))
-                    .then(post.viewCount.add(count))
-                    .otherwise(caseExpression);
+        if (viewCountCache.isEmpty()) {
+            log.info(":::: 조회수 캐시가 없습니다.");
+            return;
         }
+
+        QPost post = QPost.post;
         Set<Long> postIds = viewCountCache.keySet();
 
-        queryFactory.update(post)
-                .set(post.viewCount, caseExpression) // 업데이트 대상 컬럼, 업데이트 계산식(case when)
-                .where(post.id.in(postIds)) //querydsl에서 .in()은 object 타입을 지원하지 않음
+        // CaseBuilder를 사용한 CASE WHEN 구성
+        CaseBuilder caseBuilder = new CaseBuilder();
+        var caseExpression = caseBuilder
+                .when(post.id.eq(postIds.iterator().next()))
+                .then(post.viewCount.add(viewCountCache.get(postIds.iterator().next())));
+
+        for (Map.Entry<Long, Integer> entry : viewCountCache.entrySet()) {
+            caseExpression = caseExpression
+                    .when(post.id.eq(entry.getKey()))
+                    .then(post.viewCount.add(entry.getValue()));
+        }
+
+        Expression<Integer> finalExpression = caseExpression.otherwise(post.viewCount);
+
+        // QueryDSL을 사용한 벌크 업데이트
+        long updatedCount = queryFactory.update(post)
+                .set(post.viewCount, finalExpression)
+                .where(post.id.in(postIds))
                 .execute();
-        log.info(queryFactory.query().toString());
+
+        log.info(":::: Updated {} posts' viewCount", updatedCount);
     }
 
 
     @Override
     public Page<PostListPageDto> getPostList(Pageable pageable) {
-//        JPAQueryFactory queryFactory = new JPAQueryFactory(entityManager);
         QPost post = QPost.post;
 
         List<PostListPageDto> dtoList = queryFactory.select(Projections.constructor(
-                        PostListPageDto.class, post.id, post.title, post.content, post.member.nickname, post.member.username, post.viewCount, post.commentCount))
+                        PostListPageDto.class,
+                        post.id, post.title, post.content, post.member.nickname, post.member.username, post.viewCount, post.commentCount))
                 .from(post)
                 .orderBy(post.id.desc())
                 .offset(pageable.getOffset())
