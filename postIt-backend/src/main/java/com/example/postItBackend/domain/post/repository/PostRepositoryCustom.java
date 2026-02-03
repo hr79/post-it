@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Optional;
 
 public interface PostRepositoryCustom {
-    void bulkUpdateViewCount(Map<Object, Object> viewCountCache);
     void bulkUpdateViewCountWithQueryDsl(Map<Long, Integer> viewCountCache);
     Page<PostListPageDto> getPostList(Pageable pageable);
     Optional<PostDetailResponseDto> findPostDetailById(Long postId);
