@@ -100,8 +100,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     private void setAuthentication(String accessToken) {
         Optional.of(accessToken)
                 .map(token -> jwtUtil.getUsername(token))
-//                .map(username -> userDetailsService.loadUserByUsername(username))
-                .map(username -> new CustomUserDetails(username, null, null))
+                .map(username -> userDetailsService.loadUserByUsername(username))
                 .map(userDetails -> new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities()))
                 .ifPresent(authToken -> SecurityContextHolder.getContext().setAuthentication(authToken));
     }

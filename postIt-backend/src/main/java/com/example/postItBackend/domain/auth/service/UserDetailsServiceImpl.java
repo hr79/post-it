@@ -3,6 +3,7 @@ package com.example.postItBackend.domain.auth.service;
 import com.example.postItBackend.domain.auth.model.CustomUserDetails;
 import com.example.postItBackend.domain.auth.model.Member;
 import com.example.postItBackend.domain.auth.MemberRepository;
+import com.example.postItBackend.domain.auth.util.AuthorityUtil;
 import com.example.postItBackend.common.util.CacheUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,6 +23,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         System.out.println("====== this is loadUserByUsername ======");
 //        Member member = memberRepository.findByUsername(username).orElseThrow(() -> new CustomException(ErrorMessages.USER_NOT_FOUND));
         Member member = cacheUtil.findByUsernameWithCache(username);
-        return new CustomUserDetails(member.getUsername(), member.getPassword(), null);
+        return new CustomUserDetails(member.getUsername(), member.getPassword(), AuthorityUtil.createAuthorities(member.getRole()));
     }
 }

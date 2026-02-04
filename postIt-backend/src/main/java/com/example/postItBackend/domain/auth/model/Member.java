@@ -1,6 +1,7 @@
 package com.example.postItBackend.domain.auth.model;
 
 import com.example.postItBackend.domain.BaseEntity;
+import com.example.postItBackend.domain.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
@@ -35,13 +36,18 @@ public class Member extends BaseEntity {
     @Column(nullable = true)
     private String providerId;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private UserRole role;
+
     @Builder
-    public Member(Long id, String username, String nickname, String email, String password, String loginType) {
+    public Member(Long id, String username, String nickname, String email, String password, String loginType, UserRole role) {
         this.id = id;
         this.username = username;
         this.nickname = nickname;
         this.email = email;
         this.password = password;
         this.loginType = loginType;
+        this.role = role != null ? role : UserRole.USER;
     }
 }
