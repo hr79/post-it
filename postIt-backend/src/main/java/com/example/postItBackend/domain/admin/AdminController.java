@@ -73,16 +73,6 @@ public class AdminController {
     }
 
     /**
-     * 모든 게시글 조회 (페이징)
-     */
-    @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/board")
-    public ResponseEntity<?> getAllPosts(@RequestParam(required = false, value = "page", defaultValue = "0") int pageNo) {
-        PageRequest pageRequest = PageRequest.of(pageNo, 20, Sort.by(Sort.Direction.DESC, "id"));
-        return ResponseEntity.ok(ApiResponse.success(adminService.getAllPosts(pageRequest), HttpStatus.OK.value(), "모든 게시글 조회 성공"));
-    }
-
-    /**
      * 특정 게시글 삭제 (관리자만 가능)
      */
     @PreAuthorize("hasRole('ADMIN')")
