@@ -1,5 +1,5 @@
 # 베이스 이미지
-FROM openjdk:21-jdk-slim
+FROM eclipse-temurin:21-jre-jammy
 
 ARG JAR_FILE=*.jar
 
