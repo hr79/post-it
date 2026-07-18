@@ -1,3 +1,6 @@
+# GitHub Actions CI/CD Workflow
+# 역할: Backend/Frontend 변경감지 → 선택적 빌드 → Docker 이미지 푸시 → 헬스체크 → 선택적 배포
+
 name: CI/CD Workflow
 
 on:
@@ -6,157 +9,248 @@ on:
       - master
     paths-ignore:
       - 'README.md'
-#      - '.github/**'
       - 'docs/**'
   pull_request:
     branches:
       - master
     paths-ignore:
       - 'README.md'
-#      - '.github/**'
       - 'docs/**'
 
+env:
+  DOCKER_REGISTRY_URL: ${{ secrets.DOCKER_REGISTRY_URL }}
+  DOCKER_USERNAME: ${{ secrets.PROD_DOCKER_USERNAME }}
+  DOCKER_PASSWORD: ${{ secrets.PROD_DOCKER_PASSWORD }}
+  DOCKER_ACCESS_TOKEN: ${{ secrets.PROD_DOCKER_ACCESS_TOKEN }}
+  EC2_HOST: ${{ secrets.PROD_EC2_HOST }}
+  EC2_USER: ${{ secrets.PROD_EC2_USER }}
+  EC2_PRIVATE_KEY: ${{ secrets.PROD_EC2_PRIVATE_KEY }}
+  JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
+
 jobs:
-  build-and-deploy:
+  # ========================================
+  # 1️⃣ 변경된 파일 감지
+  # ========================================
+  # 역할: 커밋에서 변경된 디렉토리 판별
+  # 다음 Job들에서 이 output을 사용해 조건부 실행 결정
+  detect-changes:
+    name: Detect Changes
     runs-on: ubuntu-latest
-    env:
-      DOCKER_REGISTRY_URL: ${{ secrets.DOCKER_REGISTRY_URL }}
-      DOCKER_USERNAME: ${{ secrets.PROD_DOCKER_USERNAME }}
-      DOCKER_PASSWORD: ${{ secrets.PROD_DOCKER_PASSWORD }}
-      DOCKER_ACCESS_TOKEN: ${{ secrets.PROD_DOCKER_ACCESS_TOKEN }}
-      EC2_HOST: ${{ secrets.PROD_EC2_HOST }}
-      EC2_USER: ${{ secrets.PROD_EC2_USER }}
-      EC2_PRIVATE_KEY: ${{ secrets.PROD_EC2_PRIVATE_KEY }}
-      
+    outputs:
+      # 각 output은 true/false 값을 가짐
+      # steps.filter.outputs.backend: dorny/paths-filter가 생성한 값
+      # id: filter에서 정의한 ID로 이 값을 다른 Job에서 접근 가능
+      backend: ${{ steps.filter.outputs.backend }}
+      frontend: ${{ steps.filter.outputs.frontend }}
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v4
 
-    - name: Cache Gradle
-      uses: actions/cache@v3
-      with:
-        path: |
-          ~/.gradle/caches
-          ~/.gradle/wrapper
-        key: gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-        restore-keys: gradle-
+      - name: Detect changed paths
+        # dorny/paths-filter: 파일 변경을 감지해 boolean output 생성
+        # 이 output들은 steps.filter.outputs.backend/frontend로 다른 Job에서 참조 가능
+        uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            backend:
+              - 'postIt-backend/**'
+            frontend:
+              - 'postIt-frontend/**'
 
-    - name: Cache Flutter
-      uses: actions/cache@v3
-      with:
-        path: |
-          ~/.pub-cache
-          build/
-        key: flutter-${{ hashFiles('**/pubspec.lock') }}
-        restore-keys: flutter-
+  # ========================================
+  # 2️⃣ Backend 빌드 (변경 시에만 실행)
+  # ========================================
+  # 역할: Spring Boot 애플리케이션 빌드 + Docker 이미지 빌드 및 푸시
+  # 조건: backend 파일 변경 감지 시에만 실행
+  build-backend:
+    name: Build Backend
+    needs: detect-changes
+    if: needs.detect-changes.outputs.backend == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-    - name: Clear Docker cache
-      run: docker builder prune --all --force
+      # Docker Buildx 설정: 빌드 캐시 및 멀티플랫폼 지원
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
+      # Docker Hub 인증 (이미지 푸시 권한 획득)
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.PROD_DOCKER_USERNAME }}
+          password: ${{ secrets.PROD_DOCKER_ACCESS_TOKEN }}
 
-    - name: Login to Docker Hub
-      run: |
-         docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
+      # Java 런타임 설정 (Gradle 빌드 필수)
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
 
-    - name: Log in to Docker Hub
-      uses: docker/login-action@v2
-      with:
-        username: ${{ secrets.PROD_DOCKER_USERNAME }}
-        password: ${{ secrets.PROD_DOCKER_ACCESS_TOKEN }}
-          
-    - name: Debugging Docker variables
-      run: |
-        echo "DOCKER_USERNAME: $DOCKER_USERNAME"
-        # echo "DOCKER_REGISTRY_URL: $DOCKER_REGISTRY_URL"
+      # Gradle 캐시: 의존성 다운로드 시간 단축
+      - name: Set up Gradle cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ hashFiles('postIt-backend/**/*.gradle*', 'postIt-backend/**/gradle-wrapper.properties') }}
+          restore-keys: gradle-
 
-    - name: Set up JDK
-      uses: actions/setup-java@v3
-      with:
-        distribution: 'temurin'
-        java-version: '21' # 사용 중인 Java 버전에 맞게 변경
+      # Gradle 빌드 (테스트 제외)
+      - name: Build with Gradle
+        working-directory: ./postIt-backend
+        run: ./gradlew clean build -x test
 
-    - name: Build the project
-      working-directory: ./postIt-backend
-      env:
-        JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
-      run: ./gradlew clean build -x test
-        
-    # backend
-    - name: Build and push backend Docker image
-      env:
-        IMAGE_NAME: springboot-web
-        IMAGE_TAG: latest
-      run: |
-        docker build -t $DOCKER_USERNAME/$IMAGE_NAME:$IMAGE_TAG ./postIt-backend --push
+      # Docker 이미지 빌드 및 Docker Hub 푸시
+      # cache-from/cache-to: GitHub Actions 캐시 활용해 빌드 속도 향상
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./postIt-backend
+          push: true
+          tags: ${{ env.DOCKER_USERNAME }}/springboot-web:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
-    # frontend
-    - name: Set up Flutter
-      uses: subosito/flutter-action@v2
-      with:
-        channel: stable
-        # flutter-version: 3.19.0
-    - run: flutter --version
+  # ========================================
+  # 3️⃣ Backend 헬스체크 (빌드 성공 시에만)
+  # ========================================
+  # 역할: 배포된 API가 정상 응답하는지 확인
+  # 조건: build-backend 성공 후 실행
+  backend-smoke-test:
+    name: Backend Smoke Test
+    needs: build-backend
+    if: success()
+    runs-on: ubuntu-latest
+    steps:
+      # /api/actuator/health 엔드포인트 확인 (최대 10회, 5초 간격)
+      - name: Health check
+        run: |
+          for i in {1..10}; do
+            curl -fsS https://post-it-service.shop/api/actuator/health && exit 0
+            echo "API not ready yet... retrying"
+            sleep 5
+          done
+          echo "API health check failed"
+          exit 1
 
-    - name: Build Flutter Web
-      working-directory: ./postIt-frontend
-      run: flutter build web
+  # ========================================
+  # 4️⃣ Frontend 빌드 (변경 시에만 실행)
+  # ========================================
+  # 역할: Flutter Web 앱 빌드 + Docker 이미지 빌드 및 푸시
+  # 조건: frontend 파일 변경 감지 시에만 실행
+  build-frontend:
+    name: Build Frontend
+    needs: detect-changes
+    if: needs.detect-changes.outputs.frontend == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-    - name: Build and push frontend Docker image
-      env:
-        IMAGE_NAME: flutter-web
-        IMAGE_TAG: latest
-      run: |
-        docker build -t $DOCKER_USERNAME/$IMAGE_NAME:$IMAGE_TAG ./postIt-frontend --push
+      # Docker Buildx 설정
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-    - name: Deploy to EC2
-      uses: appleboy/ssh-action@v0.1.8
-      with:
-        host: ${{ secrets.PROD_EC2_HOST }}
-        username: ${{ secrets.PROD_EC2_USER }}
-        key: ${{ secrets.PROD_EC2_PRIVATE_KEY }}
-        script: |
-          export DOCKER_USERNAME="${{ secrets.PROD_DOCKER_USERNAME }}"
-          
-          cd /home/ubuntu
-          sudo docker compose -f docker-compose.prod.yml down
-          
-          # Remove previous version images
+      # Docker Hub 인증
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.PROD_DOCKER_USERNAME }}
+          password: ${{ secrets.PROD_DOCKER_ACCESS_TOKEN }}
 
-          sudo docker rmi $DOCKER_USERNAME/springboot-web
-          sudo docker rmi $DOCKER_USERNAME/flutter-web
+      # Flutter 캐시: pub 패키지 다운로드 시간 단축
+      - name: Set up Flutter cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.pub-cache
+            build/
+          key: flutter-${{ hashFiles('postIt-frontend/**/pubspec.lock') }}
+          restore-keys: flutter-
 
-          # Pull the latest images
-          
-          sudo docker pull $DOCKER_USERNAME/springboot-web:latest
-          sudo docker pull $DOCKER_USERNAME/flutter-web:latest
+      # Flutter SDK 설정
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
 
-          # Restart the containers using docker-compose
-          
-          sudo docker compose -f docker-compose.prod.yml up --build --detach
+      # Flutter Web 빌드 (build/web 디렉토리 생성)
+      - name: Build Flutter Web
+        working-directory: ./postIt-frontend
+        run: flutter build web
 
-    # ---- 추가된 Smoke Test 단계 ----
-    - name: Smoke test - API health
-      run: |
-        for i in {1..10}; do
-          curl -fsS https://post-it-service.shop/api/actuator/health && exit 0
-          echo "API not ready yet... retrying"
-          sleep 5
-        done
-        echo "API health check failed"
-        exit 1
+      # Docker 이미지 빌드 및 푸시
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./postIt-frontend
+          push: true
+          tags: ${{ env.DOCKER_USERNAME }}/flutter-web:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
-    - name: Smoke test - Flutter static file
-      run: |
-        for i in {1..10}; do
-          curl -fsS https://post-it-service.shop/index.html && exit 0
-          echo "Frontend not ready yet... retrying"
-          sleep 5
-        done
-        echo "Flutter static file check failed"
-        exit 1
+  # ========================================
+  # 5️⃣ Frontend 헬스체크 (빌드 성공 시에만)
+  # ========================================
+  # 역할: 배포된 정적 파일이 접근 가능한지 확인
+  # 조건: build-frontend 성공 후 실행
+  frontend-smoke-test:
+    name: Frontend Smoke Test
+    needs: build-frontend
+    if: success()
+    runs-on: ubuntu-latest
+    steps:
+      # index.html 파일 확인 (최대 10회, 5초 간격)
+      - name: Check index.html
+        run: |
+          for i in {1..10}; do
+            curl -fsS https://post-it-service.shop/index.html && exit 0
+            echo "Frontend not ready yet... retrying"
+            sleep 5
+          done
+          echo "Frontend static file check failed"
+          exit 1
 
-    - name: Mark workflow successful
-      run: |
-        echo "::set-output name=success::true"
+  # ========================================
+  # 6️⃣ EC2 배포 (변경된 것만 재배포)
+  # ========================================
+  # 역할: 변경된 서비스만 EC2에 배포 (다른 서비스는 건드리지 않음)
+  # 조건: 최소 하나 이상 변경 감지 시 실행
+  deploy-to-ec2:
+    name: Deploy to EC2
+    needs: detect-changes
+    if: |
+      always() && (needs.detect-changes.outputs.backend == 'true' || needs.detect-changes.outputs.frontend == 'true')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy services
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.PROD_EC2_HOST }}
+          username: ${{ secrets.PROD_EC2_USER }}
+          key: ${{ secrets.PROD_EC2_PRIVATE_KEY }}
+          script: |
+            export DOCKER_USERNAME="${{ secrets.PROD_DOCKER_USERNAME }}"
+            cd /home/ubuntu
+
+            BACKEND_CHANGED="${{ needs.detect-changes.outputs.backend }}"
+            FRONTEND_CHANGED="${{ needs.detect-changes.outputs.frontend }}"
+
+            # Backend만 변경된 경우: Spring Boot 컨테이너만 재배포
+            if [ "$BACKEND_CHANGED" = "true" ]; then
+              echo "Deploying Backend..."
+              sudo docker pull $DOCKER_USERNAME/springboot-web:latest
+              sudo docker compose -f docker-compose.prod.yml up -d springboot-web
+            fi
+
+            # Frontend만 변경된 경우: Flutter Web 컨테이너만 재배포
+            if [ "$FRONTEND_CHANGED" = "true" ]; then
+              echo "Deploying Frontend..."
+              sudo docker pull $DOCKER_USERNAME/flutter-web:latest
+              sudo docker compose -f docker-compose.prod.yml up -d flutter-web
+            fi
