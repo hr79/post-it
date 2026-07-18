@@ -19,7 +19,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class CacheUtil {
     private final MemberRepository memberRepository;
-    private final RedisTemplate<String, Object> redisTemplate;
+    private final RedisTemplate<String, Integer> redisTemplate;
 
     @Cacheable(value = "member", key = "#username")
     public Member findByUsernameWithCache(String username) {
