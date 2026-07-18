@@ -140,7 +140,7 @@ jobs:
     - name: Smoke test - API health
       run: |
         for i in {1..10}; do
-          curl -fsS https://post-it-service.shop/api/actuator/health && exit 0
+          curl -fsS https://post-it-00-service.duckdns.org/api/actuator/health && exit 0
           echo "API not ready yet... retrying"
           sleep 5
         done
@@ -150,7 +150,7 @@ jobs:
     - name: Smoke test - Flutter static file
       run: |
         for i in {1..10}; do
-          curl -fsS https://post-it-service.shop/index.html && exit 0
+          curl -fsS https://post-it-00-service.duckdns.org/index.html && exit 0
           echo "Frontend not ready yet... retrying"
           sleep 5
         done
