@@ -19,7 +19,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class CacheUtil {
     private final MemberRepository memberRepository;
-    private final RedisTemplate<String, Integer> redisTemplate;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     @Cacheable(value = "member", key = "#username")
     public Member findByUsernameWithCache(String username) {
@@ -32,10 +32,10 @@ public class CacheUtil {
     public Integer increaseViewCount(Long postId) {
         String key = "viewCount::" + postId;
         Integer currentViewCount = Optional
-                .ofNullable((Integer) redisTemplate.opsForValue().get(key))
+                .ofNullable(Integer.parseInt((String) redisTemplate.opsForValue().get(key)))
                 .orElse(0);
         Integer newViewCount = currentViewCount + 1;
-        redisTemplate.opsForValue().set(key, newViewCount);
+        redisTemplate.opsForValue().set(key, newViewCount.toString());
         log.info("currentViewCount: {}", newViewCount);
         return newViewCount;
     }
