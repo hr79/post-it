@@ -31,13 +31,15 @@ public class CacheUtil {
     @CachePut(value = "viewCount", key = "#postId")
     public Integer increaseViewCount(Long postId) {
         String key = "viewCount::" + postId;
-        log.info("key: {}", key);
-        Integer currentViewCount = (Integer) Optional
-                .ofNullable((redisTemplate.opsForValue().get(key)))
-                .orElse(0);
+        log.debug("key: {}", key);
+
+        int currentViewCount = 0;
+        if (redisTemplate.opsForValue().get(key) != null) {
+            currentViewCount = Integer.parseInt((String) redisTemplate.opsForValue().get(key));
+        }
         Integer newViewCount = currentViewCount + 1;
         redisTemplate.opsForValue().set(key, newViewCount.toString());
-        log.info("currentViewCount: {}", newViewCount);
+        log.debug("currentViewCount: {}", newViewCount);
         return newViewCount;
     }
 
@@ -54,13 +56,14 @@ public class CacheUtil {
 
         keys.forEach(key -> {
             Long postId = Long.parseLong(key.split("::")[1]);
-            Integer count = (Integer) redisTemplate.opsForValue().get(key);
-            if (count != null) {
-                resultCache.put(postId, count);
+
+            if (redisTemplate.opsForValue().get(key) != null) {
+                int currentViewCount = Integer.parseInt((String) redisTemplate.opsForValue().get(key));
+                resultCache.put(postId, currentViewCount);
             }
         });
 
-        log.info("resultCache: {}", resultCache);
+        log.debug("resultCache: {}", resultCache);
 
         return resultCache;
     }
