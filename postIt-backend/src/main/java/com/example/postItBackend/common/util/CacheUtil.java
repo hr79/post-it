@@ -31,8 +31,9 @@ public class CacheUtil {
     @CachePut(value = "viewCount", key = "#postId")
     public Integer increaseViewCount(Long postId) {
         String key = "viewCount::" + postId;
-        Integer currentViewCount = Optional
-                .ofNullable(Integer.parseInt((String) redisTemplate.opsForValue().get(key)))
+        log.info("key: {}", key);
+        Integer currentViewCount = (Integer) Optional
+                .ofNullable((redisTemplate.opsForValue().get(key)))
                 .orElse(0);
         Integer newViewCount = currentViewCount + 1;
         redisTemplate.opsForValue().set(key, newViewCount.toString());
