@@ -15,13 +15,22 @@ class ApiClient {
           if (accessToken != null) {
             options.headers["Authorization"] = "Bearer $accessToken";
           }
+
+          // test
+          print("REQUEST ${options.method} ${options.path}");
           return handler.next(options);
         },
         onResponse: (response, handler) {
+          // test
+          print("RESPONSE ${response.requestOptions.path}");
           return handler.next(response);
         },
         onError: (DioException e, handler) async {
           print("::::ApiClient onError");
+
+          // test
+          print("ERROR ${e.requestOptions.path}");
+          print("ERROR ${e.response?.statusCode}");
 
           if (e.response?.statusCode == 401 || e.response?.statusCode == 403) {
             print(e.response?.statusCode);

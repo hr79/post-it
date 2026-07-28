@@ -18,6 +18,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,6 +34,18 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         try {
+            // 테스트
+            System.out.println("========test======");
+            System.out.println(request.getMethod());
+            System.out.println(request.getRequestURI());
+            System.out.println(request.getContentLength());
+            System.out.println(request.getContentType());
+            byte[] body = request.getInputStream().readAllBytes();
+
+            System.out.println(body.length);
+            System.out.println(new String(body, StandardCharsets.UTF_8));
+            System.out.println("==============");
+
             LoginRequestDto loginRequestDto = new ObjectMapper().readValue(request.getInputStream(), LoginRequestDto.class);
             System.out.println("input id = " + loginRequestDto.getUsername());
             System.out.println("input password = " + loginRequestDto.getPassword());

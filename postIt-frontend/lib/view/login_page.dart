@@ -68,11 +68,11 @@ class LoginPage extends GetView<AuthController> {
                     SizedBox(
                       height: 48,
                       child: ElevatedButton(
-                        onPressed: () {
+                        onPressed: () async {
                           controller.idController.text = idController.text;
                           controller.pwController.text =
                               passwordController.text;
-                          controller.login();
+                          await controller.login();
                           if (controller.isLoggedIn.value) {
                             Get.back();
                           }
