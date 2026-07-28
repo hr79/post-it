@@ -57,6 +57,9 @@ jobs:
               - 'postIt-backend/**'
             frontend:
               - 'postIt-frontend/**'
+            
+      - name: Set short SHA
+        run: echo "SHORT_SHA=${GITHUB_SHA::7}" >> $GITHUB_ENV
 
   # ========================================
   # 2️⃣ Backend 빌드 (변경 시에만 실행)
@@ -112,7 +115,9 @@ jobs:
         with:
           context: ./postIt-backend
           push: true
-          tags: ${{ env.DOCKER_USERNAME }}/springboot-web:latest
+          tags: |
+            ${{ env.DOCKER_USERNAME }}/springboot-web:latest
+            ${{ env.DOCKER_USERNAME }}/springboot-web:${{ env.SHORT_SHA }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -190,7 +195,9 @@ jobs:
         with:
           context: ./postIt-frontend
           push: true
-          tags: ${{ env.DOCKER_USERNAME }}/flutter-web:latest
+          tags: |
+            ${{ env.DOCKER_USERNAME }}/flutter-web:latest
+            ${{ env.DOCKER_USERNAME }}/flutter-web:${{ env.SHORT_SHA }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -223,9 +230,19 @@ jobs:
   # 조건: 최소 하나 이상 변경 감지 시 실행
   deploy-to-ec2:
     name: Deploy to EC2
-    needs: detect-changes
+    # Backend/Frontend 빌드가 끝날 때까지 반드시 대기
+    needs:
+      - detect-changes
+      - build-backend
+      - build-frontend
+    # detect-changes는 성공해야 하고,
+    # build job은 success 또는 skipped 둘 다 허용
     if: |
-      always() && (needs.detect-changes.outputs.backend == 'true' || needs.detect-changes.outputs.frontend == 'true')
+      always() &&
+      needs.detect-changes.result == 'success' &&
+      (needs.build-backend.result == 'success' || needs.build-backend.result == 'skipped') &&
+      (needs.build-frontend.result == 'success' || needs.build-frontend.result == 'skipped') &&
+      (needs.detect-changes.outputs.backend == 'true' || needs.detect-changes.outputs.frontend == 'true')
     runs-on: ubuntu-latest
     steps:
       - name: Deploy services
