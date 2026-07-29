@@ -35,16 +35,16 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         try {
             // 테스트
-            System.out.println("========test======");
-            System.out.println(request.getMethod());
-            System.out.println(request.getRequestURI());
-            System.out.println(request.getContentLength());
-            System.out.println(request.getContentType());
-            byte[] body = request.getInputStream().readAllBytes();
-
-            System.out.println(body.length);
-            System.out.println(new String(body, StandardCharsets.UTF_8));
-            System.out.println("==============");
+//            System.out.println("========test======");
+//            System.out.println(request.getMethod());
+//            System.out.println(request.getRequestURI());
+//            System.out.println(request.getContentLength());
+//            System.out.println(request.getContentType());
+//            byte[] body = request.getInputStream().readAllBytes();
+//
+//            System.out.println(body.length);
+//            System.out.println(new String(body, StandardCharsets.UTF_8));
+//            System.out.println("==============");
 
             LoginRequestDto loginRequestDto = new ObjectMapper().readValue(request.getInputStream(), LoginRequestDto.class);
             System.out.println("input id = " + loginRequestDto.getUsername());
