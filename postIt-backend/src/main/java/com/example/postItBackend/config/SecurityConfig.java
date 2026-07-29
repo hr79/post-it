@@ -95,18 +95,18 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
 
         // cors 임시 테스트용 설정
-        configuration.addAllowedOriginPattern("*");
-        configuration.addAllowedMethod("*");
-        configuration.addAllowedHeader("*");
-        configuration.setAllowCredentials(false);
+//        configuration.addAllowedOriginPattern("*");
+//        configuration.addAllowedMethod("*");
+//        configuration.addAllowedHeader("*");
+//        configuration.setAllowCredentials(false);
 
-//        configuration.setAllowedOrigins(List.of(
-//                "http://localhost:8081",
-//                "https://post-it-00-service.duckdns.org"
-//        ));
-//        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-//        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
-//        configuration.setAllowCredentials(true); // 쿠키 인증 허용 (필요 시 활성화)
+        configuration.setAllowedOrigins(List.of(
+                "http://localhost:8081",
+                "https://post-it-00-service.duckdns.org"
+        ));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+        configuration.setAllowCredentials(true); // 쿠키 인증 허용 (필요 시 활성화)
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration); // 모든 경로에 적용
