@@ -1,5 +1,5 @@
 # GitHub Actions CI/CD Workflow
-# 역할: Backend/Frontend 변경감지 → 선택적 빌드 → Docker 이미지 푸시 → 헬스체크 → 선택적 배포
+# 역할: Backend/Frontend/Infra 변경감지 → 선택적 빌드 → Docker 이미지 푸시 → 헬스체크 → 선택적 배포
 
 name: CI/CD Workflow
 
@@ -42,6 +42,7 @@ jobs:
       # id: filter에서 정의한 ID로 이 값을 다른 Job에서 접근 가능
       backend: ${{ steps.filter.outputs.backend }}
       frontend: ${{ steps.filter.outputs.frontend }}
+      infra: ${{ steps.filter.outputs.infra }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -57,6 +58,8 @@ jobs:
               - 'postIt-backend/**'
             frontend:
               - 'postIt-frontend/**'
+            infra:
+              - 'infra/**'
 
   # ========================================
   # 2️⃣ Backend 빌드 (변경 시에만 실행)
@@ -241,13 +244,33 @@ jobs:
     # detect-changes는 성공해야 하고,
     # build job은 success 또는 skipped 둘 다 허용
     if: |
+      github.event_name == 'push' &&
       always() &&
       needs.detect-changes.result == 'success' &&
       (needs.build-backend.result == 'success' || needs.build-backend.result == 'skipped') &&
       (needs.build-frontend.result == 'success' || needs.build-frontend.result == 'skipped') &&
-      (needs.detect-changes.outputs.backend == 'true' || needs.detect-changes.outputs.frontend == 'true')
+      (
+        needs.detect-changes.outputs.backend == 'true' ||
+        needs.detect-changes.outputs.frontend == 'true' ||
+        needs.detect-changes.outputs.infra == 'true'
+      )
     runs-on: ubuntu-latest
     steps:
+      - name: Update infrastructure files
+        if: needs.detect-changes.outputs.infra == 'true'
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.PROD_EC2_HOST }}
+          username: ${{ secrets.PROD_EC2_USER }}
+          key: ${{ secrets.PROD_EC2_PRIVATE_KEY }}
+
+          source: |
+            infra/docker-compose.prod.yml
+            infra/nginx.conf
+
+          target: /home/ubuntu
+          strip_components: 1   #경로에서 infra/ 디렉토리 제거하고 복사
+
       - name: Deploy services
         uses: appleboy/ssh-action@v0.1.8
         with:
@@ -260,6 +283,15 @@ jobs:
 
             BACKEND_CHANGED="${{ needs.detect-changes.outputs.backend }}"
             FRONTEND_CHANGED="${{ needs.detect-changes.outputs.frontend }}"
+            INFRA_CHANGED="${{ needs.detect-changes.outputs.infra }}"
+
+            # infra 변경 감지 시: docker-compose.prod.yml과 nginx.conf를 업데이트하고 전체 인프라 재시작
+            if [ "$INFRA_CHANGED" = "true" ]; then
+              echo "Restarting infrastructure..."
+              sudo docker compose \
+              -f docker-compose.prod.yml \
+              up -d
+            fi
 
             # Backend만 변경된 경우: Spring Boot 컨테이너만 재배포
             if [ "$BACKEND_CHANGED" = "true" ]; then
