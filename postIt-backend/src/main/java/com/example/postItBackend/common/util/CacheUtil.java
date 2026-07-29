@@ -4,15 +4,11 @@ import com.example.postItBackend.domain.auth.model.Member;
 import com.example.postItBackend.domain.auth.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Slf4j
 @Component
@@ -28,16 +24,17 @@ public class CacheUtil {
     }
 
     // 게시글 조회수를 캐싱
-    @CachePut(value = "viewCount", key = "#postId")
-    public Integer increaseViewCount(Long postId) {
+    public void increaseViewCount(Long postId) {
         String key = "viewCount::" + postId;
-        Integer currentViewCount = Optional
-                .ofNullable((Integer) redisTemplate.opsForValue().get(key))
-                .orElse(0);
+        log.info("key: {}", key);
+
+        Integer currentViewCount = 0;
+        if (redisTemplate.opsForValue().get(key) != null) {
+            currentViewCount = (Integer) redisTemplate.opsForValue().get(key);
+        }
         Integer newViewCount = currentViewCount + 1;
         redisTemplate.opsForValue().set(key, newViewCount);
-        log.info("currentViewCount: {}", newViewCount);
-        return newViewCount;
+        log.info("updated ViewCount: {}", newViewCount);
     }
 
     // 조회수 캐시 조회
@@ -53,15 +50,20 @@ public class CacheUtil {
 
         keys.forEach(key -> {
             Long postId = Long.parseLong(key.split("::")[1]);
-            Integer count = (Integer) redisTemplate.opsForValue().get(key);
-            if (count != null) {
-                resultCache.put(postId, count);
-            }
+            Integer currentViewCount = (Integer) redisTemplate.opsForValue().get(key);
+            resultCache.put(postId, currentViewCount);
         });
-
         log.info("resultCache: {}", resultCache);
 
         return resultCache;
+    }
+
+    public void clearAllViewCountCache() {
+        Set<String> keys = redisTemplate.keys("viewCount::*");
+
+        if (keys != null && !keys.isEmpty()) {
+            redisTemplate.delete(keys);
+        }
     }
 
     // todo

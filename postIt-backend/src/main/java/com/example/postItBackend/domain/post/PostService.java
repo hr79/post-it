@@ -106,16 +106,18 @@ public class PostService {
 
     // 조회수 업데이트
     @Scheduled(cron = "0 */3 * * * *")
-    @CacheEvict(value = "viewCount", allEntries = true) // 캐싱된 데이터들을 db 업데이트 후 캐시 삭제
     @Transactional
     public void updateViewCount() {
         log.info(":::: updateViewCount started");
         Map<Long, Integer> allViewCountCache = cacheUtil.getAllViewCountCache();
-        if (!allViewCountCache.isEmpty()) {
-            log.info(":::: Found {} items in viewCount cache. Starting bulk update", allViewCountCache.size());
-            postRepository.bulkUpdateViewCountWithQueryDsl(allViewCountCache);
-        } else {
+
+        if (allViewCountCache.isEmpty()) {
             log.info(":::: viewCount cache is empty. Skipping update");
+            return;
         }
+        log.info(":::: Found {} items in viewCount cache. Starting bulk update", allViewCountCache.size());
+        postRepository.bulkUpdateViewCountWithQueryDsl(allViewCountCache);
+        cacheUtil.clearAllViewCountCache();
+        log.info(":::: viewCount cache cleared");
     }
 }

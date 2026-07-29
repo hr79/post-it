@@ -40,7 +40,10 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             ),
             HttpMethod.PATCH, Set.of(),
             HttpMethod.DELETE, Set.of(),
-            HttpMethod.PUT, Set.of()
+            HttpMethod.PUT, Set.of(),
+            HttpMethod.OPTIONS, Set.of(
+                    "/**"
+            )
     );
 
     @Override
