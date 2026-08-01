@@ -59,7 +59,8 @@ jobs:
             frontend:
               - 'postIt-frontend/**'
             infra:
-              - 'infra/**'
+              - 'infra/docker-compose.prod.yml'
+              - 'infra/nginx.conf'
 
   # ========================================
   # 2️⃣ Backend 빌드 (변경 시에만 실행)
@@ -71,12 +72,15 @@ jobs:
     needs: detect-changes
     if: needs.detect-changes.outputs.backend == 'true'
     runs-on: ubuntu-latest
+    outputs:
+      backend-image-tag: ${{ steps.sha.outputs.SHORT_SHA }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Set short SHA
-        run: echo "SHORT_SHA=${GITHUB_SHA::7}" >> $GITHUB_ENV
+        id: sha
+        run: echo "SHORT_SHA=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
 
       # Docker Buildx 설정: 빌드 캐시 및 멀티플랫폼 지원
       - name: Set up Docker Buildx
@@ -120,7 +124,7 @@ jobs:
           push: true
           tags: |
             ${{ env.DOCKER_USERNAME }}/springboot-web:latest
-            ${{ env.DOCKER_USERNAME }}/springboot-web:${{ env.SHORT_SHA }}
+            ${{ env.DOCKER_USERNAME }}/springboot-web:${{ steps.sha.outputs.SHORT_SHA }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -156,12 +160,17 @@ jobs:
     needs: detect-changes
     if: needs.detect-changes.outputs.frontend == 'true'
     runs-on: ubuntu-latest
+
+    outputs:
+        frontend-image-tag: ${{ steps.sha.outputs.SHORT_SHA }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Set short SHA
-        run: echo "SHORT_SHA=${GITHUB_SHA::7}" >> $GITHUB_ENV
+        id: sha
+        run: echo "SHORT_SHA=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
 
       # Docker Buildx 설정
       - name: Set up Docker Buildx
@@ -203,7 +212,7 @@ jobs:
           push: true
           tags: |
             ${{ env.DOCKER_USERNAME }}/flutter-web:latest
-            ${{ env.DOCKER_USERNAME }}/flutter-web:${{ env.SHORT_SHA }}
+            ${{ env.DOCKER_USERNAME }}/flutter-web:${{ steps.sha.outputs.SHORT_SHA }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -284,6 +293,9 @@ jobs:
             BACKEND_CHANGED="${{ needs.detect-changes.outputs.backend }}"
             FRONTEND_CHANGED="${{ needs.detect-changes.outputs.frontend }}"
             INFRA_CHANGED="${{ needs.detect-changes.outputs.infra }}"
+            
+            BACKEND_TAG="${{ needs.build-backend.outputs.backend-image-tag }}"
+            FRONTEND_TAG="${{ needs.build-frontend.outputs.frontend-image-tag }}"
 
             # infra 변경 감지 시: docker-compose.prod.yml과 nginx.conf를 업데이트하고 전체 인프라 재시작
             if [ "$INFRA_CHANGED" = "true" ]; then
@@ -296,13 +308,17 @@ jobs:
             # Backend만 변경된 경우: Spring Boot 컨테이너만 재배포
             if [ "$BACKEND_CHANGED" = "true" ]; then
               echo "Deploying Backend..."
-              sudo docker pull $DOCKER_USERNAME/springboot-web:latest
-              sudo docker compose -f docker-compose.prod.yml up -d springboot-web
+              sudo docker pull $DOCKER_USERNAME/springboot-web:$BACKEND_TAG
+              # env에 변경된 태그 업데이트
+              sudo sed -i "s/^SPRINGBOOT_IMAGE_TAG=.*/SPRINGBOOT_IMAGE_TAG=$BACKEND_TAG/" .env 
+              sudo docker compose -f docker-compose.prod.yml up -d --force-recreate springboot-web
             fi
 
             # Frontend만 변경된 경우: Flutter Web 컨테이너만 재배포
             if [ "$FRONTEND_CHANGED" = "true" ]; then
               echo "Deploying Frontend..."
-              sudo docker pull $DOCKER_USERNAME/flutter-web:latest
-              sudo docker compose -f docker-compose.prod.yml up -d flutter-web
+              sudo docker pull $DOCKER_USERNAME/flutter-web:$FRONTEND_TAG
+              # env에 변경된 태그 업데이트
+              sudo sed -i "s/^FLUTTER_IMAGE_TAG=.*/FLUTTER_IMAGE_TAG=$FRONTEND_TAG/" .env
+              sudo docker compose -f docker-compose.prod.yml up -d --force-recreate flutter-web
             fi
