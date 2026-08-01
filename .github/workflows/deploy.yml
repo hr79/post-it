@@ -269,6 +269,21 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
+
+      - name: Check files
+        run: |
+          pwd
+          ls -al
+          find . -name "docker-compose.prod.yml"
+          find . -name "nginx.conf"
+
+      - name: Debug files
+        run: |
+          git branch
+          git log -1 --oneline
+          find . -maxdepth 3 -type f | grep infra
 
       - name: Update infrastructure files
         if: needs.detect-changes.outputs.infra == 'true'
