@@ -1,5 +1,5 @@
 # GitHub Actions CI/CD Workflow
-# 역할: Backend/Frontend 변경감지 → 선택적 빌드 → Docker 이미지 푸시 → 헬스체크 → 선택적 배포
+# 역할: Backend/Frontend/Infra 변경감지 → 선택적 빌드 → Docker 이미지 푸시 → 헬스체크 → 선택적 배포
 
 name: CI/CD Workflow
 
@@ -25,7 +25,7 @@ env:
   EC2_HOST: ${{ secrets.PROD_EC2_HOST }}
   EC2_USER: ${{ secrets.PROD_EC2_USER }}
   EC2_PRIVATE_KEY: ${{ secrets.PROD_EC2_PRIVATE_KEY }}
-  JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
+#  JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
 
 jobs:
   # ========================================
@@ -42,6 +42,7 @@ jobs:
       # id: filter에서 정의한 ID로 이 값을 다른 Job에서 접근 가능
       backend: ${{ steps.filter.outputs.backend }}
       frontend: ${{ steps.filter.outputs.frontend }}
+      infra: ${{ steps.filter.outputs.infra }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -57,6 +58,9 @@ jobs:
               - 'postIt-backend/**'
             frontend:
               - 'postIt-frontend/**'
+            infra:
+              - 'infra/docker-compose.prod.yml'
+              - 'infra/nginx.conf'
 
   # ========================================
   # 2️⃣ Backend 빌드 (변경 시에만 실행)
@@ -68,12 +72,15 @@ jobs:
     needs: detect-changes
     if: needs.detect-changes.outputs.backend == 'true'
     runs-on: ubuntu-latest
+    outputs:
+      backend-image-tag: ${{ steps.sha.outputs.SHORT_SHA }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Set short SHA
-        run: echo "SHORT_SHA=${GITHUB_SHA::7}" >> $GITHUB_ENV
+        id: sha
+        run: echo "SHORT_SHA=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
 
       # Docker Buildx 설정: 빌드 캐시 및 멀티플랫폼 지원
       - name: Set up Docker Buildx
@@ -117,7 +124,7 @@ jobs:
           push: true
           tags: |
             ${{ env.DOCKER_USERNAME }}/springboot-web:latest
-            ${{ env.DOCKER_USERNAME }}/springboot-web:${{ env.SHORT_SHA }}
+            ${{ env.DOCKER_USERNAME }}/springboot-web:${{ steps.sha.outputs.SHORT_SHA }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -153,12 +160,17 @@ jobs:
     needs: detect-changes
     if: needs.detect-changes.outputs.frontend == 'true'
     runs-on: ubuntu-latest
+
+    outputs:
+        frontend-image-tag: ${{ steps.sha.outputs.SHORT_SHA }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Set short SHA
-        run: echo "SHORT_SHA=${GITHUB_SHA::7}" >> $GITHUB_ENV
+        id: sha
+        run: echo "SHORT_SHA=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
 
       # Docker Buildx 설정
       - name: Set up Docker Buildx
@@ -200,7 +212,7 @@ jobs:
           push: true
           tags: |
             ${{ env.DOCKER_USERNAME }}/flutter-web:latest
-            ${{ env.DOCKER_USERNAME }}/flutter-web:${{ env.SHORT_SHA }}
+            ${{ env.DOCKER_USERNAME }}/flutter-web:${{ steps.sha.outputs.SHORT_SHA }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -242,12 +254,50 @@ jobs:
     # build job은 success 또는 skipped 둘 다 허용
     if: |
       always() &&
+      (
+      github.event_name == 'push' || github.event_name == 'pull_request'
+      ) &&
       needs.detect-changes.result == 'success' &&
       (needs.build-backend.result == 'success' || needs.build-backend.result == 'skipped') &&
       (needs.build-frontend.result == 'success' || needs.build-frontend.result == 'skipped') &&
-      (needs.detect-changes.outputs.backend == 'true' || needs.detect-changes.outputs.frontend == 'true')
+      (
+        needs.detect-changes.outputs.backend == 'true' ||
+        needs.detect-changes.outputs.frontend == 'true' ||
+        needs.detect-changes.outputs.infra == 'true'
+      )
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
+
+      - name: Check files
+        run: |
+          pwd
+          ls -al
+          find . -name "docker-compose.prod.yml"
+          find . -name "nginx.conf"
+
+      - name: Debug files
+        run: |
+          git branch
+          git log -1 --oneline
+          find . -maxdepth 3 -type f | grep infra
+
+      - name: Update infrastructure files
+        if: needs.detect-changes.outputs.infra == 'true'
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.PROD_EC2_HOST }}
+          username: ${{ secrets.PROD_EC2_USER }}
+          key: ${{ secrets.PROD_EC2_PRIVATE_KEY }}
+
+          source: "infra/*"
+
+          target: /home/ubuntu
+          strip_components: 1   #경로에서 infra/ 디렉토리 제거하고 복사
+
       - name: Deploy services
         uses: appleboy/ssh-action@v0.1.8
         with:
@@ -260,17 +310,33 @@ jobs:
 
             BACKEND_CHANGED="${{ needs.detect-changes.outputs.backend }}"
             FRONTEND_CHANGED="${{ needs.detect-changes.outputs.frontend }}"
+            INFRA_CHANGED="${{ needs.detect-changes.outputs.infra }}"
+            
+            BACKEND_TAG="${{ needs.build-backend.outputs.backend-image-tag }}"
+            FRONTEND_TAG="${{ needs.build-frontend.outputs.frontend-image-tag }}"
+
+            # infra 변경 감지 시: docker-compose.prod.yml과 nginx.conf를 업데이트하고 전체 인프라 재시작
+            if [ "$INFRA_CHANGED" = "true" ]; then
+              echo "Restarting infrastructure..."
+              sudo docker compose \
+              -f docker-compose.prod.yml \
+              up -d --force-recreate
+            fi
 
             # Backend만 변경된 경우: Spring Boot 컨테이너만 재배포
             if [ "$BACKEND_CHANGED" = "true" ]; then
               echo "Deploying Backend..."
-              sudo docker pull $DOCKER_USERNAME/springboot-web:latest
-              sudo docker compose -f docker-compose.prod.yml up -d springboot-web
+              sudo docker pull $DOCKER_USERNAME/springboot-web:$BACKEND_TAG
+              # env에 변경된 태그 업데이트
+              sudo sed -i "s/^SPRINGBOOT_IMAGE_TAG=.*/SPRINGBOOT_IMAGE_TAG=$BACKEND_TAG/" .env 
+              sudo docker compose -f docker-compose.prod.yml up -d --force-recreate springboot-web
             fi
 
             # Frontend만 변경된 경우: Flutter Web 컨테이너만 재배포
             if [ "$FRONTEND_CHANGED" = "true" ]; then
               echo "Deploying Frontend..."
-              sudo docker pull $DOCKER_USERNAME/flutter-web:latest
-              sudo docker compose -f docker-compose.prod.yml up -d flutter-web
+              sudo docker pull $DOCKER_USERNAME/flutter-web:$FRONTEND_TAG
+              # env에 변경된 태그 업데이트
+              sudo sed -i "s/^FLUTTER_IMAGE_TAG=.*/FLUTTER_IMAGE_TAG=$FRONTEND_TAG/" .env
+              sudo docker compose -f docker-compose.prod.yml up -d --force-recreate flutter-web
             fi
