@@ -320,7 +320,7 @@ jobs:
               echo "Restarting infrastructure..."
               sudo docker compose \
               -f docker-compose.prod.yml \
-              up -d
+              up -d --force-recreate
             fi
 
             # Backend만 변경된 경우: Spring Boot 컨테이너만 재배포
