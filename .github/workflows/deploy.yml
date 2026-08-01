@@ -253,8 +253,10 @@ jobs:
     # detect-changes는 성공해야 하고,
     # build job은 success 또는 skipped 둘 다 허용
     if: |
-      github.event_name == 'push' &&
       always() &&
+      (
+      github.event_name == 'push' || github.event_name == 'pull_request'
+      ) &&
       needs.detect-changes.result == 'success' &&
       (needs.build-backend.result == 'success' || needs.build-backend.result == 'skipped') &&
       (needs.build-frontend.result == 'success' || needs.build-frontend.result == 'skipped') &&
