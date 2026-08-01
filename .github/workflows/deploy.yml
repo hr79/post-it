@@ -25,7 +25,7 @@ env:
   EC2_HOST: ${{ secrets.PROD_EC2_HOST }}
   EC2_USER: ${{ secrets.PROD_EC2_USER }}
   EC2_PRIVATE_KEY: ${{ secrets.PROD_EC2_PRIVATE_KEY }}
-  JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
+#  JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
 
 jobs:
   # ========================================
