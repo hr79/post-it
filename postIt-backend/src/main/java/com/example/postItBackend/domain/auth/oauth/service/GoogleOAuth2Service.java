@@ -3,6 +3,7 @@ package com.example.postItBackend.domain.auth.oauth.service;
 import com.example.postItBackend.domain.auth.model.CustomUserDetails;
 import com.example.postItBackend.domain.auth.model.Member;
 import com.example.postItBackend.domain.auth.MemberRepository;
+import com.example.postItBackend.domain.enums.UserRole;
 import com.example.postItBackend.common.util.JwtUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -145,6 +146,7 @@ public class GoogleOAuth2Service implements AuthService {
                 .nickname((String) body.get("name"))
                 .email((String) body.get("email"))
                 .loginType("google")
+                .role(UserRole.USER)
                 .build();
         memberRepository.save(member);
 

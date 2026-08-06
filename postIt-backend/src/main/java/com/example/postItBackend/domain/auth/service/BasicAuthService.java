@@ -4,6 +4,7 @@ import com.example.postItBackend.domain.auth.MemberRepository;
 import com.example.postItBackend.domain.auth.model.Member;
 import com.example.postItBackend.domain.auth.dto.RegisterRequestDto;
 import com.example.postItBackend.domain.auth.dto.AuthResponseDto;
+import com.example.postItBackend.domain.enums.UserRole;
 import com.example.postItBackend.common.exception.ErrorMessages;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -45,6 +46,7 @@ public class BasicAuthService {
                 .nickname(registerRequestDto.getNickname())
                 .email(email)
                 .loginType("BASIC")
+                .role(UserRole.USER)
                 .build();
 
         memberRepository.save(member);
