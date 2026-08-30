@@ -34,7 +34,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             HttpMethod.GET, Set.of(
                     "/", "/api/", "/api/auth/register**", "/api/login", "/api/board*", "/api/comment",
                     "/api/auth/oauth2-login*", "/api/auth/oauth2/callback",
-                    "/api/actuator/health","/api/actuator/info", "/api/actuator/metrics", "/api/actuator/prometheus",
+                    "/api/actuator/health","/api/actuator/info", "/api/actuator/metrics*", "/api/actuator/prometheus*",
                     "/api/favicon.ico", "/favicon.ico"),
             HttpMethod.POST, Set.of(
                     "/api/auth/register*", "/api/login", "/api/auth/reissue", "/api/auth/oauth2-login*", "/api/auth/oauth2/callback",
