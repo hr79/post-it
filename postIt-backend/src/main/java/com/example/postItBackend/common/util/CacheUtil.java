@@ -34,7 +34,7 @@ public class CacheUtil {
         }
         Integer newViewCount = currentViewCount + 1;
         redisTemplate.opsForValue().set(key, newViewCount);
-        log.info("updated ViewCount: {}", newViewCount);
+        log.debug("updated ViewCount: {}", newViewCount);
     }
 
     // 조회수 캐시 조회
@@ -53,7 +53,7 @@ public class CacheUtil {
             Integer currentViewCount = (Integer) redisTemplate.opsForValue().get(key);
             resultCache.put(postId, currentViewCount);
         });
-        log.info("resultCache: {}", resultCache);
+        log.debug("resultCache: {}", resultCache);
 
         return resultCache;
     }
