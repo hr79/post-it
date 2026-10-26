@@ -9,7 +9,6 @@ import com.example.postItBackend.domain.auth.model.Member;
 import com.example.postItBackend.common.util.CacheUtil;
 import com.example.postItBackend.domain.post.repository.PostRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -27,10 +26,12 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final CacheUtil cacheUtil;
+    private final ViewCountUpdater viewCountUpdater;
 
-    public PostService(PostRepository postRepository, CacheUtil cacheUtil) {
+    public PostService(PostRepository postRepository, CacheUtil cacheUtil, ViewCountUpdater viewCountUpdater) {
         this.postRepository = postRepository;
         this.cacheUtil = cacheUtil;
+        this.viewCountUpdater = viewCountUpdater;
     }
 
     @Transactional(readOnly = true)
@@ -60,7 +61,7 @@ public class PostService {
     @Transactional(readOnly = true)
     public PostDetailResponseDto getPost(Long id) {
         PostDetailResponseDto post = postRepository.findPostDetailById(id).orElseThrow(() -> new IllegalArgumentException("No Post"));
-        cacheUtil.increaseViewCount(id); // 조회된 글의 조회수 증가(caching)
+        viewCountUpdater.increaseAsync(id);
 
         return post;
     }
