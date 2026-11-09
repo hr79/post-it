@@ -32,14 +32,18 @@ spring:
 jwt:
   secret-key: ${JWT_SECRET_KEY}
 
-main-page: https://post-it-service.shop
+main-page: https://post-it-00-service.duckdns.org
 
 management:
   endpoints:
     web:
       base-path: /api/actuator
       exposure:
-        include: "health, info"
+        include: "health, info, metrics, prometheus"
   endpoint:
     health:
       show-details: always
+logging:
+  level:
+    root: info
+    com.example: info

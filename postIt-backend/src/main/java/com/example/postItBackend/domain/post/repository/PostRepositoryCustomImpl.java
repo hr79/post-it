@@ -30,7 +30,7 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
     @Transactional
     public void bulkUpdateViewCountWithQueryDsl(Map<Long, Integer> viewCountCache) {
         if (viewCountCache.isEmpty()) {
-            log.info(":::: 조회수 캐시가 없습니다.");
+            log.debug(":::: 조회수 캐시가 없습니다.");
             return;
         }
 
@@ -57,7 +57,7 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
                 .where(post.id.in(postIds))
                 .execute();
 
-        log.info(":::: Updated {} posts' viewCount", updatedCount);
+        log.debug(":::: Updated {} posts' viewCount", updatedCount);
     }
 
 
