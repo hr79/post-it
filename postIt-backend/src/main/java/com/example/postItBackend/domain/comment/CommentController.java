@@ -6,6 +6,7 @@ import com.example.postItBackend.domain.comment.dto.CommentResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
@@ -39,14 +40,15 @@ public class CommentController {
     public ResponseEntity<ApiResponse<?>> deleteComment(@PathVariable("boardId") Long boardId,
                                            @PathVariable("commentId") Long commentId,
                                            @AuthenticationPrincipal UserDetails userDetails) {
-        CommentResponseDto responseDto = commentService.deleteComment(commentId, userDetails, boardId);
+        CommentResponseDto responseDto = commentService.deleteComment(commentId, userDetails);
 
         return ResponseEntity.ok(ApiResponse.success(responseDto, HttpStatus.OK.value(), "댓글을 삭제했습니다."));
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @GetMapping("/comment")
-    public ResponseEntity<ApiResponse<List<CommentResponseDto>>> getAllComments(@AuthenticationPrincipal UserDetails userDetails) {
-        List<CommentResponseDto> allComments = commentService.getAllComments(userDetails);
+    public ResponseEntity<ApiResponse<List<CommentResponseDto>>> getAllComments() {
+        List<CommentResponseDto> allComments = commentService.getAllComments();
 
         return ResponseEntity.ok().body(ApiResponse.success(allComments, HttpStatus.CREATED.value(),"comment created"));
     }

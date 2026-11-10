@@ -46,7 +46,7 @@ public class CommentService {
     }
 
     @Transactional
-    public CommentResponseDto deleteComment(Long commentId, UserDetails userDetails, Long boardId) {
+    public CommentResponseDto deleteComment(Long commentId, UserDetails userDetails) {
         Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new IllegalArgumentException("Comment not found"));
 
         Optional.of(comment)
@@ -60,8 +60,8 @@ public class CommentService {
     }
 
     @Transactional(readOnly = true)
-    public List<CommentResponseDto> getAllComments(UserDetails userDetails) {
+    public List<CommentResponseDto> getAllComments() {
         List<Comment> all = commentRepository.findAll();
-        return all.stream().map(comment -> new CommentResponseDto(comment)).toList();
+        return all.stream().map(CommentResponseDto::new).toList();
     }
 }
